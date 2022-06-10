@@ -1,13 +1,18 @@
+import typing as _t
+import sys
 from django.db import models
+from django.db.models import Q, QuerySet
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.utils.text import slugify
 from django.urls import reverse
 from .question_form_fields import FieldTypeChoices
-
+from .managers import FormManager
 
 User = get_user_model()
 
+TESTING = "test" in sys.argv[0]
+url_prefix = "form_creator:" if not TESTING else ""
 
 class Form(models.Model):
     """The configuration for a form."""
@@ -41,6 +46,8 @@ class Form(models.Model):
         default=StatusChoices.DRAFT,
     )
 
+    objects = FormManager()
+
     class Meta:
         db_table = "fc_form"
         ordering = ["-created_dt"]
@@ -60,7 +67,27 @@ class Form(models.Model):
 
     def get_absolute_url(self):
         """Get the absolute URL for the form."""
-        return reverse("form_creator:form_detail", args=[self.id, self.slug])
+        return reverse(f"{url_prefix}form_detail", args=[self.id, self.slug])
+
+    def is_live(self) -> bool:
+        """Indicate if the form is live."""
+        if not self.status == self.StatusChoices.ACTIVE:
+            return False
+
+        if self.end_dt and self.end_dt < timezone.now():
+            return False
+
+        if self.start_dt > timezone.now():
+            return False
+
+        return True
+
+    @classmethod
+    def get_editable_forms(cls, user: _t.Optional[User]) -> QuerySet["Form"]:
+        """Get the forms that the user can edit."""
+        if not user or not user.is_authenticated:
+            return cls.objects.none()
+        return cls.objects.filter(Q(owner=user) | Q(editors=user))
 
 
 class FormQuestion(models.Model):
