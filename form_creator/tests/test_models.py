@@ -31,6 +31,13 @@ class TestForm(TestCase):
         form = baker.make(fc_models.Form)
         self.assertFalse(form.can_edit(baker.make(User)))
 
+    # def test_get_absolute_url(self):
+    #     """Test that the `get_absolute_url` method returns a string instance.
+    #     """
+    #     self.assertIsInstance(
+    #         baker.make(fc_models.Form).get_absolute_url(), str,
+    #     )
+
 
 class TestFormQuestion(TestCase):
     """Test the FormQuestion model."""

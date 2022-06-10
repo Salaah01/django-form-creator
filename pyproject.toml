@@ -2,4 +2,4 @@
 line-length = 79
 
 [tool.flake8]
-exclude = 'migrations\/.*?\.py'
+exclude = 'migrations\/.*?\.py,venv'

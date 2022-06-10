@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Form Detail</title>
+</head>
+
+<body>
+  <h1>Form</h1>
+  <div>
+    <p><strong>Title:</strong> {{ form.title }}</p>
+    <p><strong>Status:</strong> {{ form.get_status_display }}</p>
+    <p><strong>Description:</strong> {{ form.description }}</p>
+    <p><strong>Start Time:</strong> {{ form.start_dt }}</p>
+    <p><strong>End Time:</strong> {{ form.end_dt }}</p>
+  </div>
+</body>
+
+</html>

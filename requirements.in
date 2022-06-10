@@ -7,3 +7,4 @@ coverage==6.3.2
 django-coverage-plugin==2.0.2
 model_bakery==1.5.0
 pip-tools==6.6.2
+mock==4.0.3

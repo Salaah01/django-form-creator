@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils import timezone
+from django.utils.text import slugify
+from django.urls import reverse
 from .question_form_fields import FieldTypeChoices
 
 
@@ -18,16 +20,20 @@ class Form(models.Model):
         INACTIVE = "inactive", "Inactive"
 
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
-    editors = models.ManyToManyField(User, related_name="editors")
+    editors = models.ManyToManyField(User, related_name="editors", blank=True)
     title = models.CharField(max_length=150)
     slug = models.SlugField(max_length=150)
     description = models.TextField(blank=True)
     created_dt = models.DateTimeField(auto_now_add=True)
-    start_dt = models.DateTimeField(default=timezone.now)
+    start_dt = models.DateTimeField(
+        default=timezone.now,
+        verbose_name="Start on",
+    )
     end_dt = models.DateTimeField(
         blank=True,
         null=True,
         help_text="Leave blank for no end date.",
+        verbose_name="End on",
     )
     status = models.CharField(
         max_length=10,
@@ -42,9 +48,19 @@ class Form(models.Model):
     def __str__(self):
         return self.title
 
+    def save(self, *args, **kwargs):
+        """Override the save method to set the slug."""
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super().save(*args, **kwargs)
+
     def can_edit(self, user: User) -> bool:
         """Check if the user can edit the form."""
         return user == self.owner or user in self.editors.all()
+
+    def get_absolute_url(self):
+        """Get the absolute URL for the form."""
+        return reverse("form_creator:form_detail", args=[self.id, self.slug])
 
 
 class FormQuestion(models.Model):
