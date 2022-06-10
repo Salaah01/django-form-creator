@@ -14,6 +14,7 @@ User = get_user_model()
 TESTING = "test" in sys.argv[0]
 url_prefix = "form_creator:" if not TESTING else ""
 
+
 class Form(models.Model):
     """The configuration for a form."""
 
@@ -50,7 +51,7 @@ class Form(models.Model):
 
     class Meta:
         db_table = "fc_form"
-        ordering = ["-created_dt"]
+        ordering = ["status", "-created_dt"]
 
     def __str__(self):
         return self.title
@@ -64,6 +65,12 @@ class Form(models.Model):
     def can_edit(self, user: User) -> bool:
         """Check if the user can edit the form."""
         return user == self.owner or user in self.editors.all()
+
+    def can_delete(self, user: User) -> bool:
+        """Check if the user can delete the form."""
+        if not user or not user.is_authenticated:
+            return False
+        return user == self.owner or user.is_staff
 
     def get_absolute_url(self):
         """Get the absolute URL for the form."""

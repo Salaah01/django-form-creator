@@ -1,7 +1,9 @@
 import re
 from django.shortcuts import get_object_or_404
-from django.db.models import Q, QuerySet
+from django.urls import reverse_lazy
 from django.views import View
+from django.core.exceptions import PermissionDenied
+from django.db.models import Q, QuerySet
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
@@ -12,6 +14,7 @@ class FormBaseView(View):
     model = fc_models.Form
     form_class = fc_forms.NewForm
     editor_choices = None
+    success_url = reverse_lazy("form_creator:form_list")
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -21,7 +24,7 @@ class FormBaseView(View):
         return kwargs
 
 
-class SingleItemMixin:
+class FormSingleItemMixin:
     def get_object(self, *args, **kwargs):
         pattern = re.compile("/forms/(\\d{1,})-(.*?)/")
         pk, slug = pattern.search(self.request.path).groups()
@@ -55,19 +58,34 @@ class FormCreateView(FormBaseView, CreateView):
     template_name = "form_creator/form_create.html"
 
 
-class FormDetailView(FormBaseView, SingleItemMixin, DetailView):
+class FormDetailView(FormBaseView, FormSingleItemMixin, DetailView):
     """View to display a form."""
 
     template_name = "form_creator/form_detail.html"
 
 
-class FormUpdateView(FormBaseView, SingleItemMixin, UpdateView):
+class FormUpdateView(FormBaseView, FormSingleItemMixin, UpdateView):
     """View to edit a form."""
 
     template_name = "form_creator/form_edit.html"
 
 
-class FormDeleteView(FormBaseView, SingleItemMixin, DeleteView):
+class FormDeleteView(FormBaseView, FormSingleItemMixin, DeleteView):
     """View to delete a form."""
 
+    form_class = fc_forms.DeleteForm
     template_name = "form_creator/form_delete.html"
+
+    def get(self, request, *args, **kwargs):
+        res = super().get(request, *args, **kwargs)
+        if not self.object.can_delete(request.user):
+            raise PermissionDenied(
+                "You must be the owner to delete this form."
+            )
+        return res
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.pop("editor_choices", None)
+        kwargs["instance"] = self.get_object()
+        return kwargs

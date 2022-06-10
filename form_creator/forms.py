@@ -56,3 +56,20 @@ class NewForm(forms.ModelForm):
         else:
             editors_field.queryset = User.objects.none()
             editors_field.widget = forms.HiddenInput()
+
+
+class DeleteForm(forms.ModelForm):
+    """Form for deleting a form."""
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user")
+        super().__init__(*args, **kwargs)
+
+    class Meta:
+        model = fc_models.Form
+        fields = ["id"]
+
+    def clean(self) -> None:
+        """Check if the user can delete the form."""
+        if not self.instance.can_delete(self.user):
+            raise forms.ValidationError("You cannot delete this form.")

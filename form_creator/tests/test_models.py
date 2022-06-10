@@ -130,6 +130,22 @@ class TestForm(TestCase):
         self.assertIn(owned_form, results)
         self.assertIn(editable_form, results)
 
+    def test_can_delete_anon_user(self):
+        """Test that the `can_delete` method returns `False` for an
+        anonymous user.
+        """
+        self.assertFalse(baker.make(fc_models.Form).can_delete(None))
+        self.assertFalse(
+            baker.make(fc_models.Form).can_delete(AnonymousUser())
+        )
+
+    def test_can_delete(self):
+        """Test that the `can_delete` method returns `True` for the
+        owner.
+        """
+        form = baker.make(fc_models.Form, owner=baker.make(User))
+        self.assertTrue(form.can_delete(form.owner))
+
 
 class TestFormQuestion(TestCase):
     """Test the FormQuestion model."""
