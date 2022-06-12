@@ -2,6 +2,7 @@ import re
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpRequest, HttpResponse
 from django.urls import reverse_lazy
+from django.forms import formset_factory
 from django.views import View
 from django.core.exceptions import PermissionDenied
 from django.db.models import QuerySet
@@ -108,8 +109,19 @@ class FormQuestionsEditView(View):
 
     @method_decorator(with_form(can_edit=True), name="dispatch")
     def get(self, request: HttpRequest, form: fc_models.Form) -> HttpResponse:
+        FormQuestionFS = formset_factory(
+            fc_forms.FormQuestionForm,
+            extra=0,
+            can_delete=True,
+        )
+
         return render(
             request,
             "form_creator/form_questions_edit.html",
-            {"form": form},
+            {
+                "object": form,
+                "formset": FormQuestionFS(
+                    initial=form.questions.all().values()
+                ),
+            },
         )

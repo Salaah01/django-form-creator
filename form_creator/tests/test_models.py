@@ -1,10 +1,12 @@
 from datetime import timedelta
 from django.test import TestCase
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from model_bakery import baker
 from .. import models as fc_models
+from ..question_form_fields import FieldTypeChoices
 
 
 User = get_user_model()
@@ -146,6 +148,7 @@ class TestForm(TestCase):
         form = baker.make(fc_models.Form, owner=baker.make(User))
         self.assertTrue(form.can_delete(form.owner))
 
+
 class TestFormQuestion(TestCase):
     """Test the FormQuestion model."""
 
@@ -157,6 +160,31 @@ class TestFormQuestion(TestCase):
         """Test that the `choice_list` method returns a list of choices."""
         form = baker.make(fc_models.FormQuestion, choices="a|b")
         self.assertEqual(form.choice_list, ["a", "b"])
+
+    def test_clean_no_choice(self):
+        """Test that the `clean` method raises an error when there are no
+        choices but a field type requiring choices is selected.
+        """
+        form = baker.make(
+            fc_models.FormQuestion,
+            field_type=FieldTypeChoices.CHOICE,
+            choices="",
+        )
+        with self.assertRaises(ValidationError):
+            form.clean()
+
+    def test_clean_non_choice_field(self):
+        """Test that the `clean` method raises an error when there are choices
+        but a field type not requiring choices is selected.
+        """
+        form = baker.make(
+            fc_models.FormQuestion,
+            field_type=FieldTypeChoices.TEXT,
+            choices="a|b",
+        )
+        with self.assertRaises(ValidationError):
+            form.clean()
+
 
 class TestFormResponder(TestCase):
     """Test the FormResponder model."""

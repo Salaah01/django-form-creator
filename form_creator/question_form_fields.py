@@ -1,3 +1,4 @@
+import typing as _t
 from django import forms
 from django.db import models
 
@@ -35,3 +36,16 @@ field_type_map = {
     FieldTypeChoices.CHOICE: forms.ChoiceField,
     FieldTypeChoices.MULTIPLE_CHOICE: forms.MultipleChoiceField,
 }
+
+
+def is_choice_field(field: _t.Union[str, forms.Field]) -> bool:
+    """Check if the field is a choice field.
+
+    :param field: The field to check.
+    :type field: str or forms.Field
+    :returns: True if the field is a choice field, False otherwise.
+    :rtype: bool
+    """
+    if isinstance(field, str):
+        field = field_type_map[field]
+    return issubclass(field.widget, forms.Select)

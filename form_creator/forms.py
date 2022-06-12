@@ -73,3 +73,13 @@ class DeleteForm(forms.ModelForm):
         """Check if the user can delete the form."""
         if not self.instance.can_delete(self.user):
             raise forms.ValidationError("You cannot delete this form.")
+
+
+class FormQuestionForm(forms.ModelForm):
+    """Form for creating a new form question."""
+
+    id = forms.HiddenInput()
+
+    class Meta:
+        model = fc_models.FormQuestion
+        fields = "__all__"

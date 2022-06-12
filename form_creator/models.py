@@ -3,10 +3,11 @@ import sys
 from django.db import models
 from django.db.models import Q, QuerySet
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.utils.text import slugify
 from django.urls import reverse
-from .question_form_fields import FieldTypeChoices
+from .question_form_fields import FieldTypeChoices, is_choice_field
 from .managers import FormManager
 
 User = get_user_model()
@@ -140,6 +141,22 @@ class FormQuestion(models.Model):
     def choice_list(self) -> _t.List[str]:
         """Get the list of choices for the question."""
         return (self.choices or "").split("|")
+
+    def clean(self, *args, **kwargs) -> None:
+        """Ensure that fields that require choices are not blank and
+        vice-versa.
+        """
+        super().clean(*args, **kwargs)
+        _is_choice_field = is_choice_field(self.field_type)
+        choices = self.choices.strip()
+        if _is_choice_field and not choices:
+            raise ValidationError(
+                "This question field type requires choices."
+            )
+        if not _is_choice_field and choices:
+            raise ValidationError(
+                "This question field type does not support choices."
+            )
 
 
 class FormResponder(models.Model):
