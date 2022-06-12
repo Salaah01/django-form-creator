@@ -139,7 +139,7 @@ class FormQuestion(models.Model):
     @property
     def choice_list(self) -> _t.List[str]:
         """Get the list of choices for the question."""
-        return self.choices.split("|")
+        return (self.choices or "").split("|")
 
 
 class FormResponder(models.Model):

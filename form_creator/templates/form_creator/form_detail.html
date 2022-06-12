@@ -21,6 +21,11 @@
   </div>
 
   <h2>Questions</h2>
+  <div>
+    {% if can_edit %}
+      Edit Questions
+    {% endif %}
+  </div>
   <table>
     <thead>
       <tr>
@@ -31,7 +36,6 @@
         <th>Choices</th>
         <th>Order</th>
         <th>Related Question</th>
-        <td></td>
       </tr>
     </thead>
     <tbody>
@@ -44,15 +48,6 @@
         <td>{{ question.choice_list|join:", " }}</td>
         <td>{{ question.seq_no }}</td>
         <td>{{ question.related_question }}</td>
-        <td>
-          <div>
-            {{ can_edit }}aa
-            {% if can_edit %}
-              dfdsf
-            {% endif %}
-            
-          </div>
-        </td>
       </tr>
       {% endfor %}
     </tbody>

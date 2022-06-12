@@ -21,4 +21,9 @@ urlpatterns = [
         views.FormDeleteView.as_view(),
         name="form_delete",
     ),
+    path(
+        "forms/<int:pk>-<slug:slug>/questions/edit/",
+        views.FormQuestionsEditView.as_view(),
+        name="form_questions_edit",
+    )
 ]

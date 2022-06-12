@@ -146,7 +146,6 @@ class TestForm(TestCase):
         form = baker.make(fc_models.Form, owner=baker.make(User))
         self.assertTrue(form.can_delete(form.owner))
 
-
 class TestFormQuestion(TestCase):
     """Test the FormQuestion model."""
 
@@ -154,6 +153,10 @@ class TestFormQuestion(TestCase):
         """Test that the `__str__` method returns a string instance."""
         self.assertIsInstance(str(baker.make(fc_models.FormQuestion)), str)
 
+    def test_choice_list(self):
+        """Test that the `choice_list` method returns a list of choices."""
+        form = baker.make(fc_models.FormQuestion, choices="a|b")
+        self.assertEqual(form.choice_list, ["a", "b"])
 
 class TestFormResponder(TestCase):
     """Test the FormResponder model."""

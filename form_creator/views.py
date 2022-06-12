@@ -1,14 +1,16 @@
 import re
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from django.http import HttpRequest, HttpResponse
 from django.urls import reverse_lazy
 from django.views import View
 from django.core.exceptions import PermissionDenied
 from django.db.models import QuerySet
+from django.utils.decorators import method_decorator
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from . import models as fc_models, forms as fc_forms
+from .decorators import with_form
 
 
 class FormBaseView(View):
@@ -99,9 +101,15 @@ class FormDeleteView(FormBaseView, FormSingleItemMixin, DeleteView):
         return kwargs
 
 
-class FormQuestionView(View):
-    """View to manage questions for a form."""
+class FormQuestionsEditView(View):
+    """View to manage questions for a form. Within this view the user would be
+    able to add/edit/delete questions.
+    """
 
-    @staticmethod
-    def get_object(pk: int, slug: str) -> fc_models.Form:
-        return get_object_or_404(fc_models.Form, pk=pk, slug=slug)
+    @method_decorator(with_form(can_edit=True), name="dispatch")
+    def get(self, request: HttpRequest, form: fc_models.Form) -> HttpResponse:
+        return render(
+            request,
+            "form_creator/form_questions_edit.html",
+            {"form": form},
+        )
