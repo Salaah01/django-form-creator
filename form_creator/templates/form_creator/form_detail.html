@@ -1,3 +1,5 @@
+{% load form_creator_tags %}
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -17,6 +19,45 @@
     <p><strong>Start Time:</strong> {{ form.start_dt }}</p>
     <p><strong>End Time:</strong> {{ form.end_dt }}</p>
   </div>
+
+  <h2>Questions</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Question</th>
+        <th>Description</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Choices</th>
+        <th>Order</th>
+        <th>Related Question</th>
+        <td></td>
+      </tr>
+    </thead>
+    <tbody>
+      {% for question in form.questions.all %}
+      <tr>
+        <td>{{ question.question }}</td>
+        <td>{{ question.description|truncatechars:25 }}</td>
+        <td>{{ question.get_field_type_display }}</td>
+        <td>{{ question.required }}</td>
+        <td>{{ question.choice_list|join:", " }}</td>
+        <td>{{ question.seq_no }}</td>
+        <td>{{ question.related_question }}</td>
+        <td>
+          <div>
+            {{ can_edit }}aa
+            {% if can_edit %}
+              dfdsf
+            {% endif %}
+            
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+
+  </table>
 </body>
 
 </html>

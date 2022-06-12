@@ -1,9 +1,10 @@
 import re
 from django.shortcuts import get_object_or_404
+from django.http import HttpRequest, HttpResponse
 from django.urls import reverse_lazy
 from django.views import View
 from django.core.exceptions import PermissionDenied
-from django.db.models import Q, QuerySet
+from django.db.models import QuerySet
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
@@ -29,6 +30,13 @@ class FormSingleItemMixin:
         pattern = re.compile("/forms/(\\d{1,})-(.*?)/")
         pk, slug = pattern.search(self.request.path).groups()
         return get_object_or_404(self.model, pk=pk, slug=slug)
+
+    def get_context_data(self, **kwargs):
+        """Adds permissions to the context."""
+        context = super().get_context_data(**kwargs)
+        context["can_edit"] = self.get_object().can_edit(self.request.user)
+        context["can_delete"] = self.get_object().can_delete(self.request.user)
+        return context
 
 
 class FormListView(FormBaseView, ListView):
@@ -89,3 +97,11 @@ class FormDeleteView(FormBaseView, FormSingleItemMixin, DeleteView):
         kwargs.pop("editor_choices", None)
         kwargs["instance"] = self.get_object()
         return kwargs
+
+
+class FormQuestionView(View):
+    """View to manage questions for a form."""
+
+    @staticmethod
+    def get_object(pk: int, slug: str) -> fc_models.Form:
+        return get_object_or_404(fc_models.Form, pk=pk, slug=slug)

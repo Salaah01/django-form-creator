@@ -11,6 +11,8 @@ from .managers import FormManager
 
 User = get_user_model()
 
+# When running test suite, it moans about the url app name not existing in the
+# namespace. This fixes it, but it's a bit of a hack.
 TESTING = "test" in sys.argv[0]
 url_prefix = "form_creator:" if not TESTING else ""
 
@@ -100,7 +102,11 @@ class Form(models.Model):
 class FormQuestion(models.Model):
     """A collection of questions for a form."""
 
-    form = models.ForeignKey(Form, on_delete=models.CASCADE)
+    form = models.ForeignKey(
+        Form,
+        on_delete=models.CASCADE,
+        related_name="questions",
+    )
     field_type = models.CharField(
         max_length=32,
         choices=FieldTypeChoices.choices,
@@ -129,6 +135,11 @@ class FormQuestion(models.Model):
 
     def __str__(self):
         return f"{self.form.title} - {self.question}"
+
+    @property
+    def choice_list(self) -> _t.List[str]:
+        """Get the list of choices for the question."""
+        return self.choices.split("|")
 
 
 class FormResponder(models.Model):

@@ -2,6 +2,11 @@ from django.contrib import admin
 from . import models
 
 
+class FormQuestionInline(admin.StackedInline):
+    model = models.FormQuestion
+    extra = 0
+
+
 @admin.register(models.Form)
 class FormAdmin(admin.ModelAdmin):
     list_display = ("title", "description", "owner", "start_dt", "end_dt")
@@ -11,6 +16,7 @@ class FormAdmin(admin.ModelAdmin):
     ordering = ("-start_dt",)
     raw_id_fields = ("owner",)
     prepopulated_fields = {"slug": ("title",)}
+    inlines = (FormQuestionInline,)
     fieldsets = (
         (
             None,

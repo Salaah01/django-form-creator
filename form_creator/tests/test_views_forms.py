@@ -97,14 +97,18 @@ class TestFormListView(TestCase):
         )
 
     def test_get_queryset_owner(self):
-        """Test that the `get_queryset` method returns only the owner's forms."""
+        """Test that the `get_queryset` method returns only the owner's
+        forms.
+        """
         self_obj = self.self_obj(self.owner)
         result = fc_views.FormListView.get_queryset(self_obj)
         self.assertEqual(result.count(), 1)
         self.assertEqual(result.first(), self.owners_form)
 
     def test_get_queryset_editor(self):
-        """Test that the `get_queryset` method returns only the editor's forms."""
+        """Test that the `get_queryset` method returns only the editor's
+        forms.
+        """
         self_obj = self.self_obj(self.editor)
         result = fc_views.FormListView.get_queryset(self_obj)
         self.assertEqual(result.count(), 1)
