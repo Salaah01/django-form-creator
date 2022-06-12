@@ -1,57 +1,66 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
 
-<!DOCTYPE html>
-<html lang="en">
+{% block head %}
+<title>Form Detail</title>
+{% endblock %}
 
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Form Detail</title>
-</head>
-
-<body>
+{% block content %}
+<div class="d-flex justify-content-between">
   <h1>Form</h1>
-  <div>
-    <p><strong>Title:</strong> {{ form.title }}</p>
-    <p><strong>Status:</strong> {{ form.get_status_display }}</p>
-    <p><strong>Description:</strong> {{ form.description }}</p>
-    <p><strong>Start Time:</strong> {{ form.start_dt }}</p>
-    <p><strong>End Time:</strong> {{ form.end_dt }}</p>
-  </div>
 
-  <h2>Questions</h2>
-  <div>
+  <div class="d-flex align-items-center">
     {% if can_edit %}
-      Edit Questions
+      <a href="{{ form.get_edit_url }}" class="btn btn-primary">Edit</a>
+    {% endif %}
+    {% if can_delete %}
+      <a href="{{ form.get_delete_url }}" class="btn btn-danger ml-2">Delete</a>
     {% endif %}
   </div>
-  <table>
-    <thead>
-      <tr>
-        <th>Question</th>
-        <th>Description</th>
-        <th>Type</th>
-        <th>Required</th>
-        <th>Choices</th>
-        <th>Order</th>
-        <th>Related Question</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for question in form.questions.all %}
-      <tr>
-        <td>{{ question.question }}</td>
-        <td>{{ question.description|truncatechars:25 }}</td>
-        <td>{{ question.get_field_type_display }}</td>
-        <td>{{ question.required }}</td>
-        <td>{{ question.choice_list|join:", " }}</td>
-        <td>{{ question.seq_no }}</td>
-        <td>{{ question.related_question }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
+</div>
 
-  </table>
-</body>
+<div>
+  <p><strong>Title:</strong> {{ form.title }}</p>
+  <p><strong>Status:</strong> {{ form.get_status_display }}</p>
+  <p><strong>Description:</strong> {{ form.description }}</p>
+  <p><strong>Start Time:</strong> {{ form.start_dt }}</p>
+  <p><strong>End Time:</strong> {{ form.end_dt }}</p>
+</div>
 
-</html>
+<div class="d-flex justify-content-between">
+  <h2>Questions</h2>
+  {% if can_edit %}
+  <a href="{{ form.get_edit_questions_url }}" class="btn btn-primary mt-1 mb-4">
+    Edit Questions
+  </a>
+  {% endif %}
+</div>
+  
+<table class="table">
+  <thead>
+    <tr>
+      <th>Question</th>
+      <th>Description</th>
+      <th>Type</th>
+      <th>Required</th>
+      <th>Choices</th>
+      <th>Order</th>
+      <th>Related Question</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for question in form.questions.all %}
+    <tr>
+      <td>{{ question.question }}</td>
+      <td>{{ question.description|truncatechars:25 }}</td>
+      <td>{{ question.get_field_type_display }}</td>
+      <td>{{ question.required }}</td>
+      <td>{{ question.choice_list|join:", " }}</td>
+      <td>{{ question.seq_no }}</td>
+      <td>{{ question.related_question }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+
+</table>
+{% endblock %}

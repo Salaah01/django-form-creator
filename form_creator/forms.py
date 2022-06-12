@@ -82,4 +82,4 @@ class FormQuestionForm(forms.ModelForm):
 
     class Meta:
         model = fc_models.FormQuestion
-        fields = "__all__"
+        exclude = ["form"]

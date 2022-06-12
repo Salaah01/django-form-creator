@@ -75,9 +75,24 @@ class Form(models.Model):
             return False
         return user == self.owner or user.is_staff
 
-    def get_absolute_url(self):
+    def get_absolute_url(self) -> str:
         """Get the absolute URL for the form."""
         return reverse(f"{url_prefix}form_detail", args=[self.id, self.slug])
+
+    def get_edit_url(self) -> str:
+        """Get the URL for the form's edit view."""
+        return reverse(f"{url_prefix}form_edit", args=[self.id, self.slug])
+
+    def get_delete_url(self) -> str:
+        """Get the URL for the form's delete view."""
+        return reverse(f"{url_prefix}form_delete", args=[self.id, self.slug])
+
+    def get_edit_questions_url(self) -> str:
+        """Get the URL for the form's questions edit view."""
+        return reverse(
+            f"{url_prefix}form_questions_edit",
+            args=[self.id, self.slug],
+        )
 
     def is_live(self) -> bool:
         """Indicate if the form is live."""
@@ -150,9 +165,7 @@ class FormQuestion(models.Model):
         _is_choice_field = is_choice_field(self.field_type)
         choices = self.choices.strip()
         if _is_choice_field and not choices:
-            raise ValidationError(
-                "This question field type requires choices."
-            )
+            raise ValidationError("This question field type requires choices.")
         if not _is_choice_field and choices:
             raise ValidationError(
                 "This question field type does not support choices."

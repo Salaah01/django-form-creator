@@ -1,20 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
 
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Delete Form</title>
-</head>
+{% block head %}
+<title>Delete Form</title>
+{% endblock %}
 
-<body>
-  <form action="" method="POST">
-    {{ object.get_absolute_url }}
-    {% csrf_token %}
-    <input type="submit" class="btn btn-primary btn-lg" value="Confirm" style="margin-right: 30px; margin-top: 30px;">
-    <input type="submit" class="btn btn-danger btn-lg" style="margin-top: 30px;" onclick="window.location='{{form.get_absolute_url}}'; return false;" value="Cancel">
+{% block content %}
+
+<h1>Delete Form</h1>
+<p>Are you sure you want to delete this form: {{ object }}.</p>
+<p>
+  Deleting this question will delete all questions and answers associated with
+  it.
+</p>
+
+<form method="POST">
+  {% csrf_token %}
+  <input type="submit" class="btn btn-primary" value="Confirm">
+  <a href="{{ object.get_absolute_url }}" class="btn btn-danger">Cancel</a>
 </form>
-</body>
 
-</html>
+{% endblock %}

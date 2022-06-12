@@ -1,19 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
 
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>New Form</title>
-</head>
+{% block head %}
+<title>Edit Form</title>
+{% endblock %}
 
-<body>
-  <form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Submit">
-  </form>
-</body>
 
-</html>
+{% block content %}
+
+<h1>Edit Form</h1>
+
+<form method="POST">
+  {% csrf_token %}
+  {{ form|crispy }}
+  <input type="submit" class="btn btn-primary" value="Submit">
+  <a href="{{ object.get_absolute_url }}" class="btn btn-danger">Cancel</a>
+</form>
+
+{% endblock %}

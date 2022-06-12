@@ -27,6 +27,7 @@ def runtests(test_path="form_creator"):
                 "django.contrib.auth",
                 "django.contrib.sessions",
                 "django.contrib.messages",
+                "crispy_forms",
                 "form_creator",
             ),
             ROOT_URLCONF="form_creator.urls",
@@ -57,6 +58,7 @@ def runtests(test_path="form_creator"):
                 },
             ],
             SECRET_KEY="ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890",
+            CRISPY_TEMPLATE_PACK="bootstrap4",
         )
 
     django.setup()
