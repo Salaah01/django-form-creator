@@ -11,9 +11,11 @@
 <h2>Edit Questions</h2>
 
 <form method="POST">
-    {% for form in formset %}
-    {{ form|crispy }}
-    {% endfor %}
+  {{ formset.management_form }}
+  {% for form in formset %}
+  {{ form|crispy }}
+  {% endfor %}
+  {% csrf_token %}
 
   <div class="d-flex justify-content-center mb-4">
     <input type="submit" class="btn btn-primary mr-1" value="Submit">

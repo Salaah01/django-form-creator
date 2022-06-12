@@ -1,8 +1,9 @@
 import re
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
+from django.contrib import messages
 from django.http import HttpRequest, HttpResponse
 from django.urls import reverse_lazy
-from django.forms import formset_factory
+from django.forms import modelformset_factory
 from django.views import View
 from django.core.exceptions import PermissionDenied
 from django.db.models import QuerySet
@@ -107,17 +108,20 @@ class FormQuestionsEditView(View):
     able to add/edit/delete questions.
     """
 
+    template_name = "form_creator/form_questions_edit.html"
+
     @method_decorator(with_form(can_edit=True), name="dispatch")
     def get(self, request: HttpRequest, form: fc_models.Form) -> HttpResponse:
-        FormQuestionFS = formset_factory(
-            fc_forms.FormQuestionForm,
+        FormQuestionFS = modelformset_factory(
+            fc_models.FormQuestion,
+            form=fc_forms.FormQuestionForm,
             extra=0,
             can_delete=True,
         )
 
         return render(
             request,
-            "form_creator/form_questions_edit.html",
+            self.template_name,
             {
                 "object": form,
                 "formset": FormQuestionFS(
@@ -125,3 +129,31 @@ class FormQuestionsEditView(View):
                 ),
             },
         )
+
+    @method_decorator(with_form(can_edit=True), name="dispatch")
+    def post(self, request: HttpRequest, form: fc_models.Form) -> HttpResponse:
+        FormQuestionFS = modelformset_factory(
+            fc_models.FormQuestion,
+            form=fc_forms.FormQuestionForm,
+            extra=0,
+            can_delete=True,
+        )
+
+        formset = FormQuestionFS(request.POST)
+        if not formset.has_changed():
+            return redirect(form.get_absolute_url())
+
+        if formset.is_valid():
+            formset.save()
+            messages.success(request, "Questions edited.")
+            return redirect(form.get_absolute_url())
+        else:
+            messages.error(request, "Please correct the errors below.")
+            return render(
+                request,
+                self.template_name,
+                {
+                    "object": form,
+                    "formset": formset,
+                },
+            )
