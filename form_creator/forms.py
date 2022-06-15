@@ -78,8 +78,24 @@ class DeleteForm(forms.ModelForm):
 class FormQuestionForm(forms.ModelForm):
     """Form for creating a new form question."""
 
-    id = forms.HiddenInput()
+    choices = forms.CharField(
+        widget=forms.Textarea(attrs={"rows": 1}),
+        required=False,
+    )
+    description = forms.CharField(
+        widget=forms.Textarea(attrs={"rows": 5}),
+        required=False,
+    )
 
     class Meta:
         model = fc_models.FormQuestion
         exclude = ["form"]
+
+    def __init__(self, form_id: int, *args, **kwargs):
+        self.form_id = form_id
+        super().__init__(*args, **kwargs)
+
+    def save(self, *args, **kwargs) -> fc_models.FormQuestion:
+        """Save the form question and set the form id."""
+        self.instance.form_id = self.form_id
+        return super().save(*args, **kwargs)

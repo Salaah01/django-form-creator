@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% load crispy_forms_tags %}
 
 {% block head %}
@@ -11,11 +12,19 @@
 <h2>Edit Questions</h2>
 
 <form method="POST">
-  {{ formset.management_form }}
-  {% for form in formset %}
-  {{ form|crispy }}
-  {% endfor %}
-  {% csrf_token %}
+  <div class="forms">
+    <!-- <input type="hidden" data-form-id="{{ object.id }}" id="form-id"> -->
+    {{ formset.management_form }}
+    {% for form in formset %}
+    <div class="forms__form mb-5">
+      {{ form|crispy }}
+    </div>
+    {% endfor %}
+    {% csrf_token %}
+
+  </div>
+
+  <button class="btn btn-primary" id="add-another">Add another</button>
 
   <div class="d-flex justify-content-center mb-4">
     <input type="submit" class="btn btn-primary mr-1" value="Submit">
@@ -23,4 +32,8 @@
   </div>
 </form>
 
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'form_creator/js/additional_questions.js' %}"></script>
 {% endblock %}

@@ -1,7 +1,8 @@
 import re
+from functools import partial
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.urls import reverse_lazy
 from django.forms import modelformset_factory
 from django.views import View
@@ -125,7 +126,8 @@ class FormQuestionsEditView(View):
             {
                 "object": form,
                 "formset": FormQuestionFS(
-                    initial=form.questions.all().values()
+                    initial=form.questions.all().values(),
+                    form_kwargs={"form_id": form.id},
                 ),
             },
         )
@@ -139,7 +141,7 @@ class FormQuestionsEditView(View):
             can_delete=True,
         )
 
-        formset = FormQuestionFS(request.POST)
+        formset = FormQuestionFS(request.POST, form_kwargs={"form_id": form.id})
         if not formset.has_changed():
             return redirect(form.get_absolute_url())
 

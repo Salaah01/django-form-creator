@@ -163,7 +163,7 @@ class FormQuestion(models.Model):
         """
         super().clean(*args, **kwargs)
         _is_choice_field = is_choice_field(self.field_type)
-        choices = self.choices.strip()
+        choices = (self.choices or "").strip()
         if _is_choice_field and not choices:
             raise ValidationError("This question field type requires choices.")
         if not _is_choice_field and choices:
