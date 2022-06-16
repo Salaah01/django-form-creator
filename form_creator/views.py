@@ -1,8 +1,7 @@
 import re
-from functools import partial
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
-from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.http import HttpRequest, HttpResponse
 from django.urls import reverse_lazy
 from django.forms import modelformset_factory
 from django.views import View
@@ -39,8 +38,11 @@ class FormSingleItemMixin:
     def get_context_data(self, **kwargs):
         """Adds permissions to the context."""
         context = super().get_context_data(**kwargs)
-        context["can_edit"] = self.get_object().can_edit(self.request.user)
-        context["can_delete"] = self.get_object().can_delete(self.request.user)
+        obj = self.get_object()
+        context["can_edit"] = obj.can_edit(self.request.user)
+        context["can_delete"] = obj.can_delete(self.request.user)
+        context["completed_by"] = obj.completed_by(self.request.user)
+        context["can_complete_form"] = obj.can_complete_form(self.request.user)
         return context
 
 
@@ -141,7 +143,9 @@ class FormQuestionsEditView(View):
             can_delete=True,
         )
 
-        formset = FormQuestionFS(request.POST, form_kwargs={"form_id": form.id})
+        formset = FormQuestionFS(
+            request.POST, form_kwargs={"form_id": form.id}
+        )
         if not formset.has_changed():
             return redirect(form.get_absolute_url())
 

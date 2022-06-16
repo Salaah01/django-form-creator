@@ -75,6 +75,20 @@ class Form(models.Model):
             return False
         return user == self.owner or user.is_staff
 
+    def completed_by(self, user: User) -> _t.Optional["FormResponder"]:
+        """Get the form responder for the user."""
+        return self.responders.filter(user=user).first()
+
+    def can_complete_form(self, user: User) -> bool:
+        """Check if the user can complete the form."""
+        if not self.is_live():
+            return False
+
+        if self.can_edit(user):
+            return False
+
+        return not bool(self.completed_by(user))
+
     def get_absolute_url(self) -> str:
         """Get the absolute URL for the form."""
         return reverse(f"{url_prefix}form_detail", args=[self.id, self.slug])
@@ -175,16 +189,13 @@ class FormQuestion(models.Model):
 class FormResponder(models.Model):
     """Represents a person responding to a form."""
 
-    form = models.ForeignKey(Form, on_delete=models.CASCADE)
-    created_dt = models.DateTimeField(auto_now_add=True)
-    ip_address = models.GenericIPAddressField()
-    user_agent = models.CharField(max_length=150)
-    user = models.ForeignKey(
-        User,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
+    form = models.ForeignKey(
+        Form,
+        on_delete=models.CASCADE,
+        related_name="responders",
     )
+    created_dt = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     class Meta:
         db_table = "fc_form_responder"

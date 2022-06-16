@@ -37,6 +37,75 @@ class TestForm(TestCase):
         form = baker.make(fc_models.Form)
         self.assertFalse(form.can_edit(baker.make(User)))
 
+    def test_completed_by(self):
+        """Test that the `completed_by` method returns the correct instance of
+        `FormResponder`.
+        """
+        form = baker.make(fc_models.Form)
+        user = baker.make(User)
+        form_responder = baker.make(
+            fc_models.FormResponder,
+            form=form,
+            user=user,
+        )
+        baker.make(fc_models.FormResponder, form=form)
+        self.assertEqual(form.completed_by(user), form_responder)
+
+    def test_completed_by_not_completed(self):
+        """Test that the `completed_by` method returns `None` when the user
+        has not completed the form.
+        """
+        user = baker.make(User)
+        form = baker.make(fc_models.Form)
+        baker.make(fc_models.FormResponder, form=form)
+        self.assertIsNone(form.completed_by(user))
+
+    def test_can_complete_form(self):
+        """Test that the `can_complete_form` method returns the correct
+        boolean.
+        """
+        form = baker.make(
+            fc_models.Form,
+            status=fc_models.Form.StatusChoices.ACTIVE,
+        )
+        user = baker.make(User)
+        self.assertTrue(form.can_complete_form(user))
+
+    def test_can_complete_form_not_live(self):
+        """Test that the `can_complete_form` method returns the correct
+        boolean when the form is not live.
+        """
+        form = baker.make(
+            fc_models.Form,
+            status=fc_models.Form.StatusChoices.DRAFT,
+        )
+        user = baker.make(User)
+        self.assertFalse(form.can_complete_form(user))
+
+    def test_can_complete_form_editor(self):
+        """Test that the `can_complete_form` method returns the correct
+        boolean for an editor.
+        """
+        user = baker.make(User)
+        form = baker.make(
+            fc_models.Form,
+            status=fc_models.Form.StatusChoices.ACTIVE,
+        )
+        form.editors.add(user)
+        self.assertFalse(form.can_complete_form(user))
+
+    def test_can_complete_form_completed(self):
+        """Test that the `can_complete_form` method returns the correct
+        boolean when the form is completed by the user.
+        """
+        form = baker.make(
+            fc_models.Form,
+            status=fc_models.Form.StatusChoices.ACTIVE,
+        )
+        user = baker.make(User)
+        baker.make(fc_models.FormResponder, form=form, user=user)
+        self.assertFalse(form.can_complete_form(user))
+
     def test_get_absolute_url(self):
         """Test that the `get_absolute_url` method returns a string
         instance.

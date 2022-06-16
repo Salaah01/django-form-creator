@@ -1,0 +1,35 @@
+<div class="d-flex justify-content-between">
+  <h2>Questions</h2>
+  {% if can_edit %}
+  <a href="{{ form.get_edit_questions_url }}" class="btn btn-primary mt-1 mb-4">
+    Edit Questions
+  </a>
+  {% endif %}
+</div>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Question</th>
+      <th>Description</th>
+      <th>Type</th>
+      <th>Required</th>
+      <th>Choices</th>
+      <th>Order</th>
+      <th>Related Question</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for question in form.questions.all %}
+    <tr>
+      <td>{{ question.question }}</td>
+      <td>{{ question.description|truncatechars:25 }}</td>
+      <td>{{ question.get_field_type_display }}</td>
+      <td>{{ question.required }}</td>
+      <td>{{ question.choice_list|join:", " }}</td>
+      <td>{{ question.seq_no }}</td>
+      <td>{{ question.related_question }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
