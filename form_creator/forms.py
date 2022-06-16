@@ -97,5 +97,8 @@ class FormQuestionForm(forms.ModelForm):
 
     def save(self, *args, **kwargs) -> fc_models.FormQuestion:
         """Save the form question and set the form id."""
-        self.instance.form_id = self.form_id
-        return super().save(*args, **kwargs)
+        kwargs.pop("commit", None)
+        form_question = super().save(commit=False, *args, **kwargs)
+        form_question.form_id = self.form_id
+        form_question.save()
+        return form_question

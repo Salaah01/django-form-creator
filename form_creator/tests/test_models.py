@@ -46,6 +46,29 @@ class TestForm(TestCase):
             str,
         )
 
+    def test_get_edit_url(self):
+        """Test that the `get_edit_url` method returns a string instance."""
+        self.assertIsInstance(
+            baker.make(fc_models.Form).get_edit_url(),
+            str,
+        )
+
+    def test_get_delete_url(self):
+        """Test that the `get_delete_url` method returns a string instance."""
+        self.assertIsInstance(
+            baker.make(fc_models.Form).get_delete_url(),
+            str,
+        )
+
+    def test_get_edit_questions_url(self):
+        """Test that the `get_edit_questions_url` method returns a string
+        instance.
+        """
+        self.assertIsInstance(
+            baker.make(fc_models.Form).get_edit_questions_url(),
+            str,
+        )
+
     def test_save_slug(self):
         """Test that the `save` method sets the slug."""
         form = baker.make(fc_models.Form, title="Test Form", slug="")
