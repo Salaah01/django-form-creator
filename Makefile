@@ -10,7 +10,7 @@ test-coverage:
 
 # Runs linter
 lint:
-	flake8 form_creator
+	python -m flake8 --exclude=migrations form_creator/.
 
 # Formats	the code
 format:
