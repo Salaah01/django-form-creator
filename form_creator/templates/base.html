@@ -12,6 +12,21 @@
 </head>
 
 <body>
+  {% if messages %}
+  <ul class="messages mt-5">
+    {% for message in messages %}
+    <div class="container">
+      <div class="alert {{ message.tags }} alert-dismissible" role="alert" >
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="True">&times;</span>
+        </button>
+        {{ message }}
+      </div>
+    </div>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
   <div class="container mt-4 mb-4">
     {% block content %}{% endblock %}
   </div>
