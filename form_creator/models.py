@@ -67,16 +67,20 @@ class Form(models.Model):
 
     def can_edit(self, user: User) -> bool:
         """Check if the user can edit the form."""
-        return user == self.owner or user in self.editors.all()
+        return (
+            user.username == self.owner.username or user in self.editors.all()
+        )
 
     def can_delete(self, user: User) -> bool:
         """Check if the user can delete the form."""
         if not user or not user.is_authenticated:
             return False
-        return user == self.owner or user.is_staff
+        return user.username == self.owner.username or user.is_staff
 
     def completed_by(self, user: User) -> _t.Optional["FormResponder"]:
         """Get the form responder for the user."""
+        if not user or not user.is_authenticated:
+            return None
         return self.responders.filter(user=user).first()
 
     def can_complete_form(self, user: User) -> bool:
@@ -162,6 +166,7 @@ class FormQuestion(models.Model):
     class Meta:
         db_table = "fc_form_question"
         ordering = ["form", "seq_no"]
+        unique_together = ["form", "question"]
 
     def __str__(self):
         return f"{self.form.title} - {self.question}"
@@ -200,6 +205,7 @@ class FormResponder(models.Model):
     class Meta:
         db_table = "fc_form_responder"
         ordering = ["-created_dt"]
+        unique_together = ["form", "user"]
 
     def __str__(self):
         return f"{self.form.title} - {self.created_dt}"
@@ -211,6 +217,7 @@ class FormResponse(models.Model):
     form_responder = models.ForeignKey(
         FormResponder,
         on_delete=models.CASCADE,
+        related_name="responses",
     )
     question = models.ForeignKey(
         FormQuestion,

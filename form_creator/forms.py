@@ -1,9 +1,11 @@
 from django import forms
 from django.utils import timezone
+from django.db import transaction
 from django.db.models import QuerySet
 from django.contrib.auth import get_user_model
-from . import models as fc_models
 
+from . import models as fc_models
+from .question_form_fields import field_type_map, is_choice_field
 
 User = get_user_model()
 
@@ -102,3 +104,48 @@ class FormQuestionForm(forms.ModelForm):
         form_question.form_id = self.form_id
         form_question.save()
         return form_question
+
+
+class CaptureResponseForm(forms.Form):
+    """Form for capturing a form response."""
+
+    def __init__(self, form: fc_models.Form, *args, **kwargs):
+        self.form = form
+        super().__init__(*args, **kwargs)
+        self._setup_fields()
+
+    def _setup_fields(self) -> None:
+        """Set up the fields for the form response."""
+        for question in self.form.questions.all():
+            self._add_field(question)
+
+    def _add_field(self, question: fc_models.FormQuestion) -> None:
+        """Add a field for the question."""
+        field_type = field_type_map[question.field_type]
+        field_name = f"question_{question.id}"
+        field_kwargs = {
+            "label": question.question,
+            "required": question.required,
+            "help_text": question.description,
+        }
+        if is_choice_field(field_type):
+            choices = question.choices.split("|")
+            field_kwargs["choices"] = [(c, c) for c in choices]
+        self.fields[field_name] = field_type(**field_kwargs)
+
+    def save(self, user: User, *args, **kwargs) -> fc_models.FormResponder:
+        """Save the form response."""
+        with transaction.atomic():
+            form_responder = fc_models.FormResponder.objects.create(
+                form=self.form,
+                user=user,
+            )
+            form_responder.save()
+            for question, answer in self.cleaned_data.items():
+                fc_models.FormResponse.objects.create(
+                    form_responder=form_responder,
+                    question_id=question.lstrip("question_"),
+                    answer=answer,
+                )
+
+        return form_responder

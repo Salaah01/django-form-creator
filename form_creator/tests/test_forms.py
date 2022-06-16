@@ -1,9 +1,10 @@
 from django.test import TestCase
+from django import forms
 from django.forms import ValidationError
 from django.contrib.auth import get_user_model
 from model_bakery import baker
 from .. import forms as fc_forms, models as fc_models
-
+from ..question_form_fields import FieldTypeChoices
 
 User = get_user_model()
 
@@ -94,3 +95,83 @@ class TestFormQuestionForm(TestCase):
         form.is_valid()
         form.save()
         self.assertEqual(fc_models.FormQuestion.objects.count(), 1)
+
+
+class TestCaptureResponseForm(TestCase):
+    """Test the CaptureResponseForm."""
+
+    @classmethod
+    def setUpTestData(cls):
+        """Set up the test data."""
+        cls.form = baker.make(fc_models.Form)
+        cls.text_q = baker.make(fc_models.FormQuestion, form=cls.form)
+        cls.choice_q = baker.make(
+            fc_models.FormQuestion,
+            form=cls.form,
+            field_type=FieldTypeChoices.CHOICE,
+            choices="a|b|c",
+        )
+
+    def test_init(self):
+        """Test the initialiser ensuring that the form loads correctly."""
+        form = fc_forms.CaptureResponseForm(self.form)
+        self.assertEqual(form.form, self.form)
+
+    def test_loads_fields(self):
+        """Test that the form loads the correct fields."""
+        form = fc_forms.CaptureResponseForm(self.form)
+        self.assertEqual(len(form.fields), 2)
+
+        text_q_field = form.fields["question_%s" % self.text_q.id]
+        choice_q_field = form.fields["question_%s" % self.choice_q.id]
+
+        self.assertEqual(text_q_field.label, self.text_q.question)
+        self.assertEqual(choice_q_field.label, self.choice_q.question)
+
+        self.assertIsInstance(text_q_field.widget, forms.TextInput)
+        self.assertIsInstance(choice_q_field.widget, forms.Select)
+
+    def test_load_choices(self):
+        """Test that form loads the choices correctly for the choice field."""
+        form = fc_forms.CaptureResponseForm(self.form)
+        choice_q_field = form.fields["question_%s" % self.choice_q.id]
+        self.assertEqual(
+            choice_q_field.widget.choices,
+            [("a", "a"), ("b", "b"), ("c", "c")],
+        )
+
+    def test_save(self):
+        """Test that the form saves correctly."""
+        form = fc_forms.CaptureResponseForm(
+            self.form,
+            data={
+                "question_%s" % self.text_q.id: "q1",
+                "question_%s" % self.choice_q.id: "a",
+            },
+        )
+        form.is_valid()
+
+        form_response = form.save(baker.make(User))
+
+        self.assertEqual(fc_models.FormResponder.objects.count(), 1)
+        self.assertEqual(
+            fc_models.FormResponder.objects.first(),
+            form_response,
+        )
+        self.assertEqual(form_response.responses.count(), 2)
+        self.assertEqual(
+            set(
+                form_response.responses.all().values_list(
+                    "question_id", flat=True
+                )
+            ),
+            {self.text_q.id, self.choice_q.id},
+        )
+        self.assertEqual(
+            form_response.responses.get(question=self.text_q).answer,
+            "q1",
+        )
+        self.assertEqual(
+            form_response.responses.get(question=self.choice_q).answer,
+            "a",
+        )

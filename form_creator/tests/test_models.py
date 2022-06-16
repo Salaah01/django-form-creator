@@ -60,6 +60,13 @@ class TestForm(TestCase):
         baker.make(fc_models.FormResponder, form=form)
         self.assertIsNone(form.completed_by(user))
 
+    def test_completed_by_none_user(self):
+        """Test that the `completed_by` method returns `None` when the user
+        is `None`.
+        """
+        form = baker.make(fc_models.Form)
+        self.assertIsNone(form.completed_by(None))
+
     def test_can_complete_form(self):
         """Test that the `can_complete_form` method returns the correct
         boolean.

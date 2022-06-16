@@ -2,34 +2,44 @@
 {% load crispy_forms_tags %}
 
 {% block head %}
-<title>Form Detail</title>
+  <title>Form Detail</title>
 {% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between">
-  <h1>Form</h1>
+  <div class="d-flex justify-content-between">
+    <h1>Form</h1>
 
-  <div class="d-flex align-items-center">
-    {% if can_edit %}
-      <a href="{{ form.get_edit_url }}" class="btn btn-primary">Edit</a>
-    {% endif %}
-    {% if can_delete %}
-      <a href="{{ form.get_delete_url }}" class="btn btn-danger ml-2">Delete</a>
-    {% endif %}
+    <div class="d-flex align-items-center">
+      {% if can_edit %}
+        <a href="{{ form.get_edit_url }}" class="btn btn-primary">Edit</a>
+      {% endif %}
+      {% if can_delete %}
+        <a href="{{ form.get_delete_url }}" class="btn btn-danger ml-2">
+          Delete
+        </a>
+      {% endif %}
+    </div>
   </div>
-</div>
 
-<div>
-  <p><strong>Title:</strong> {{ form.title }}</p>
-  {% if form.can_edit %}
-    <p><strong>Status:</strong> {{ form.get_status_display }}</p>
+  <div>
+    <p><strong>Title:</strong> {{ form.title }}</p>
+    {% if form.can_edit %}
+      <p><strong>Status:</strong> {{ form.get_status_display }}</p>
+    {% endif %}
+    <p><strong>Description:</strong> {{ form.description }}</p>
+    <p><strong>Start Time:</strong> {{ form.start_dt }}</p>
+    <p><strong>End Time:</strong> {{ form.end_dt }}</p>
+  </div>
+
+  {% if can_edit %}
+    {% include 'form_creator/_form_questions_table.html' %}
   {% endif %}
-  <p><strong>Description:</strong> {{ form.description }}</p>
-  <p><strong>Start Time:</strong> {{ form.start_dt }}</p>
-  <p><strong>End Time:</strong> {{ form.end_dt }}</p>
-</div>
 
-{% if form.can_edit %}
-  {% include 'form_creator/_form_questions_table.html' %}
-{% endif %}
+  {% if can_complete_form %}
+    <a href="#" class="btn btn-primary">Start</a>
+  {% elif completed_form %}
+    <p class="text-black-50">Completed on {{ completed_form.created_dt }}</p>
+
+  {% endif %}
+
 {% endblock %}

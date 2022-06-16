@@ -7,6 +7,7 @@ from django.contrib.auth import get_user_model
 import mock
 from model_bakery import baker
 from .. import views as fc_views, models as fc_models
+from ..question_form_fields import FieldTypeChoices
 
 User = get_user_model()
 
@@ -275,3 +276,93 @@ class TestFromQuestionEditView(TestCase):
             str(messages[0]),
             "Please correct the errors below.",
         )
+
+
+class TestFormResponseView(TestCase):
+    """Tests the `FormResponseView` class."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = baker.make(User)
+        cls.form = baker.make(fc_models.Form)
+        cls.text_q = baker.make(
+            fc_models.FormQuestion,
+            form=cls.form,
+            required=True,
+        )
+        cls.choice_q = baker.make(
+            fc_models.FormQuestion,
+            form=cls.form,
+            field_type=FieldTypeChoices.CHOICE,
+            choices="a|b|c",
+        )
+
+    def setUp(self):
+        self.client = Client()
+        self.client.force_login(self.user)
+
+    def view_url(self) -> str:
+        """Return the URL for the view."""
+        return reverse(
+            "form_response",
+            kwargs={
+                "pk": self.form.id,
+                "slug": self.form.slug,
+            },
+        )
+
+    def test_get_view_loads(self):
+        """Test that the form actually loads."""
+        response = self.client.get(self.view_url())
+        self.assertEqual(response.status_code, 200)
+
+    def test_redirect_completed(self):
+        """If the form is completed, redirect the user."""
+        baker.make(fc_models.FormResponder, form=self.form, user=self.user)
+        response = self.client.get(self.view_url())
+        self.assertEqual(response.status_code, 302)
+
+    def test_post(self):
+        """Test a post request."""
+        response = self.client.post(
+            self.view_url(),
+            data={
+                f"question_{self.text_q.id}": "text answer",
+                f"question_{self.choice_q.id}": "b",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+
+        self.assertEqual(fc_models.FormResponder.objects.count(), 1)
+
+        form_response = fc_models.FormResponder.objects.first()
+
+        self.assertEqual(form_response.responses.count(), 2)
+        self.assertEqual(
+            set(
+                form_response.responses.all().values_list(
+                    "question_id", flat=True
+                )
+            ),
+            {self.text_q.id, self.choice_q.id},
+        )
+        self.assertEqual(
+            form_response.responses.get(question=self.text_q).answer,
+            "text answer",
+        )
+        self.assertEqual(
+            form_response.responses.get(question=self.choice_q).answer,
+            "b",
+        )
+
+    def test_post_invalid_form(self):
+        """Test a post request with invalid form."""
+        response = self.client.post(
+            self.view_url(),
+            data={
+                f"question_{self.text_q.id}": "",
+                f"question_{self.choice_q.id}": "",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(fc_models.FormResponder.objects.count(), 0)

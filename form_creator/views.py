@@ -11,8 +11,9 @@ from django.utils.decorators import method_decorator
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.contrib.auth.decorators import login_required
 from . import models as fc_models, forms as fc_forms
-from .decorators import with_form
+from .decorators import with_form, redirect_if_form_completed
 
 
 class FormBaseView(View):
@@ -41,7 +42,7 @@ class FormSingleItemMixin:
         obj = self.get_object()
         context["can_edit"] = obj.can_edit(self.request.user)
         context["can_delete"] = obj.can_delete(self.request.user)
-        context["completed_by"] = obj.completed_by(self.request.user)
+        context["completed_form"] = obj.completed_by(self.request.user)
         context["can_complete_form"] = obj.can_complete_form(self.request.user)
         return context
 
@@ -115,10 +116,12 @@ class FormQuestionsEditView(View):
 
     @method_decorator(with_form(can_edit=True), name="dispatch")
     def get(self, request: HttpRequest, form: fc_models.Form) -> HttpResponse:
+
+        extra = 0 if form.questions.count() else 1
         FormQuestionFS = modelformset_factory(
             fc_models.FormQuestion,
             form=fc_forms.FormQuestionForm,
-            extra=0,
+            extra=extra,
             can_delete=True,
         )
 
@@ -136,10 +139,12 @@ class FormQuestionsEditView(View):
 
     @method_decorator(with_form(can_edit=True), name="dispatch")
     def post(self, request: HttpRequest, form: fc_models.Form) -> HttpResponse:
+
+        extra = 0 if form.questions.count() else 1
         FormQuestionFS = modelformset_factory(
             fc_models.FormQuestion,
             form=fc_forms.FormQuestionForm,
-            extra=0,
+            extra=extra,
             can_delete=True,
         )
 
@@ -162,4 +167,38 @@ class FormQuestionsEditView(View):
                     "object": form,
                     "formset": formset,
                 },
+            )
+
+
+class FormResponseView(View):
+    """View for users to respond to questions in a form."""
+
+    template_name = "form_creator/form_response.html"
+    success_url = None
+
+    @method_decorator(login_required, name="dispatch")
+    @method_decorator(with_form(), name="dispatch")
+    @method_decorator(redirect_if_form_completed(), name="dispatch")
+    def get(self, request: HttpRequest, form: fc_models.Form) -> HttpResponse:
+        return render(
+            request,
+            self.template_name,
+            {"object": form, "form": fc_forms.CaptureResponseForm(form)},
+        )
+
+    @method_decorator(login_required, name="dispatch")
+    @method_decorator(with_form(), name="dispatch")
+    @method_decorator(redirect_if_form_completed(), name="dispatch")
+    def post(self, request: HttpRequest, form: fc_models.Form) -> HttpResponse:
+        response_form = fc_forms.CaptureResponseForm(form, request.POST)
+        if response_form.is_valid():
+            response_form.save(request.user)
+            messages.success(request, "Response saved.")
+            return redirect(self.success_url or form.get_absolute_url())
+        else:
+            messages.error(request, "Please correct the errors below.")
+            return render(
+                request,
+                self.template_name,
+                {"object": form, "form": response_form},
             )
