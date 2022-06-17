@@ -75,6 +75,8 @@ INSTALLED_APPS = [
     "form_creator",
     ...
 ]
+
+CRISPY_TEMPLATE_PACK = "bootstrap4"
 ```
 
 
