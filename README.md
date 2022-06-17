@@ -32,6 +32,8 @@ INSTALLED_APPS = [
 ]
 ```
 
+Run `python manage.py migrate`
+
 In your root `urls.py` file, add the following:
 ```python
 from django.urls import path, include
@@ -83,6 +85,9 @@ CRISPY_TEMPLATE_PACK = "bootstrap4"
 The included templates also make use of messages. Add the following to your `settings.py` file:
 
 ```python
+
+from django.contrib.messages import constants as messages
+
 MESSAGE_TAGS = {
     messages.DEBUG: "alert-secondary",
     messages.INFO: "alert-info",

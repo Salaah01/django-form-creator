@@ -1,0 +1,2 @@
+recursive-include form_creator/static *
+recursive-include form_creator/templates *
