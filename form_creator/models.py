@@ -112,6 +112,13 @@ class Form(models.Model):
             args=[self.id, self.slug],
         )
 
+    @classmethod
+    def get_editable_forms(cls, user: _t.Optional[User]) -> QuerySet["Form"]:
+        """Get the forms that the user can edit."""
+        if not user or not user.is_authenticated:
+            return cls.objects.none()
+        return cls.objects.filter(Q(owner=user) | Q(editors=user))
+
     def is_live(self) -> bool:
         """Indicate if the form is live."""
         if not self.status == self.StatusChoices.ACTIVE:
@@ -125,12 +132,10 @@ class Form(models.Model):
 
         return True
 
-    @classmethod
-    def get_editable_forms(cls, user: _t.Optional[User]) -> QuerySet["Form"]:
-        """Get the forms that the user can edit."""
-        if not user or not user.is_authenticated:
-            return cls.objects.none()
-        return cls.objects.filter(Q(owner=user) | Q(editors=user))
+    @property
+    def num_responses(self) -> int:
+        """Get the number of responses for the form."""
+        return self.responders.count()
 
 
 class FormQuestion(models.Model):

@@ -247,6 +247,15 @@ class TestForm(TestCase):
         form = baker.make(fc_models.Form, owner=baker.make(User))
         self.assertTrue(form.can_delete(form.owner))
 
+    def test_num_responses(self):
+        """Test that the `num_responses` method returns the correct
+        number of responses.
+        """
+        form = baker.make(fc_models.Form)
+        baker.make(fc_models.FormResponder, form=form)
+        baker.make(fc_models.FormResponder, form=form)
+        self.assertEqual(form.num_responses, 2)
+
 
 class TestFormQuestion(TestCase):
     """Test the FormQuestion model."""
