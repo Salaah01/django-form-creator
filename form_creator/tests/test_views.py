@@ -47,7 +47,7 @@ class TestFormCreateView(TestCase):
 
     def test_form_create_view_loads(self):
         """Test that the form actually loads."""
-        response = self.client.get(reverse("form_create"))
+        response = self.client.get(reverse("form_creator:form_create"))
         self.assertEqual(response.status_code, 200)
 
     def test_get_form_kwargs(self):
@@ -60,7 +60,7 @@ class TestFormCreateView(TestCase):
         with mock.patch.object(
             fc_views.FormBaseView, "editor_choices", editors
         ):
-            response = self.client.get(reverse("form_create"))
+            response = self.client.get(reverse("form_creator:form_create"))
             self.assertEqual(response.status_code, 200)
             self.assertEqual(
                 set(
@@ -128,7 +128,7 @@ class TestFormDeleteView(TestCase):
         form_instance = baker.make(fc_models.Form, owner=self.user)
         response = self.client.get(
             reverse(
-                "form_delete",
+                "form_creator:form_delete",
                 kwargs={
                     "pk": form_instance.id,
                     "slug": form_instance.slug,
@@ -142,7 +142,7 @@ class TestFormDeleteView(TestCase):
         form_instance = baker.make(fc_models.Form)
         response = self.client.get(
             reverse(
-                "form_delete",
+                "form_creator:form_delete",
                 kwargs={
                     "pk": form_instance.id,
                     "slug": form_instance.slug,
@@ -176,7 +176,7 @@ class TestFromQuestionEditView(TestCase):
         """Test that the form actually loads."""
         response = self.client.get(
             reverse(
-                "form_questions_edit",
+                "form_creator:form_questions_edit",
                 kwargs={
                     "pk": self.question_1.form.id,
                     "slug": self.question_1.form.slug,
@@ -189,7 +189,7 @@ class TestFromQuestionEditView(TestCase):
         """Test a post request with one change and one delete."""
         self.client.post(
             reverse(
-                "form_questions_edit",
+                "form_creator:form_questions_edit",
                 kwargs={
                     "pk": self.question_1.form.id,
                     "slug": self.question_1.form.slug,
@@ -221,7 +221,7 @@ class TestFromQuestionEditView(TestCase):
         """Test a post request with no changes."""
         res = self.client.post(
             reverse(
-                "form_questions_edit",
+                "form_creator:form_questions_edit",
                 kwargs={
                     "pk": self.question_1.form.id,
                     "slug": self.question_1.form.slug,
@@ -242,7 +242,7 @@ class TestFromQuestionEditView(TestCase):
         self.assertEqual(
             res.url,
             reverse(
-                "form_detail",
+                "form_creator:form_detail",
                 kwargs={"pk": self.form.id, "slug": self.form.slug},
             ),
         )
@@ -251,7 +251,7 @@ class TestFromQuestionEditView(TestCase):
         """Test a post request with errors."""
         res = self.client.post(
             reverse(
-                "form_questions_edit",
+                "form_creator:form_questions_edit",
                 kwargs={
                     "pk": self.question_1.form.id,
                     "slug": self.question_1.form.slug,
@@ -304,7 +304,7 @@ class TestFormResponseView(TestCase):
     def view_url(self) -> str:
         """Return the URL for the view."""
         return reverse(
-            "form_response",
+            "form_creator:form_response",
             kwargs={
                 "pk": self.form.id,
                 "slug": self.form.slug,
@@ -366,3 +366,77 @@ class TestFormResponseView(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(fc_models.FormResponder.objects.count(), 0)
+
+
+class TestDownloadQuestions(TestCase):
+    """Tests the `download_questions view."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = baker.make(User)
+        cls.form = baker.make(fc_models.Form, owner=cls.user)
+        cls.text_q = baker.make(
+            fc_models.FormQuestion,
+            form=cls.form,
+            required=True,
+        )
+        cls.choice_q = baker.make(
+            fc_models.FormQuestion,
+            form=cls.form,
+            field_type=FieldTypeChoices.CHOICE,
+            choices="a|b|c",
+        )
+
+    def setUp(self):
+        self.client = Client()
+        self.client.force_login(self.user)
+
+    def test_loads(self):
+        """Test that the form actually loads."""
+        response = self.client.get(
+            reverse(
+                "form_creator:download_questions",
+                kwargs={
+                    "pk": self.form.id,
+                    "slug": self.form.slug,
+                },
+            )
+        )
+        self.assertEqual(response.status_code, 200)
+
+
+class TestDownloadResponses(TestCase):
+    """Tests the `download_responses view."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = baker.make(User)
+        cls.form = baker.make(fc_models.Form, owner=cls.user)
+        cls.text_q = baker.make(
+            fc_models.FormQuestion,
+            form=cls.form,
+            required=True,
+        )
+        cls.choice_q = baker.make(
+            fc_models.FormQuestion,
+            form=cls.form,
+            field_type=FieldTypeChoices.CHOICE,
+            choices="a|b|c",
+        )
+
+    def setUp(self):
+        self.client = Client()
+        self.client.force_login(self.user)
+
+    def test_loads(self):
+        """Test that the form actually loads."""
+        response = self.client.get(
+            reverse(
+                "form_creator:download_responses",
+                kwargs={
+                    "pk": self.form.id,
+                    "slug": self.form.slug,
+                },
+            )
+        )
+        self.assertEqual(response.status_code, 200)

@@ -15,7 +15,7 @@ User = get_user_model()
 # When running test suite, it moans about the url app name not existing in the
 # namespace. This fixes it, but it's a bit of a hack.
 TESTING = "test" in sys.argv[0]
-url_prefix = "form_creator:" if not TESTING else ""
+url_prefix = "form_creator:"
 
 
 class Form(models.Model):
@@ -67,15 +67,21 @@ class Form(models.Model):
 
     def can_edit(self, user: User) -> bool:
         """Check if the user can edit the form."""
-        return (
-            user.username == self.owner.username or user in self.editors.all()
+        if not user or not user.is_authenticated:
+            return False
+        return any(
+            [
+                user.is_staff,
+                user.username == self.owner.username,
+                user in self.editors.all(),
+            ]
         )
 
     def can_delete(self, user: User) -> bool:
         """Check if the user can delete the form."""
         if not user or not user.is_authenticated:
             return False
-        return user.username == self.owner.username or user.is_staff
+        return any([user.is_staff, user.username == self.owner.username])
 
     def completed_by(self, user: User) -> _t.Optional["FormResponder"]:
         """Get the form responder for the user."""
@@ -85,6 +91,9 @@ class Form(models.Model):
 
     def can_complete_form(self, user: User) -> bool:
         """Check if the user can complete the form."""
+        if not user or not user.is_authenticated:
+            return False
+
         if not self.is_live():
             return False
 
@@ -111,6 +120,10 @@ class Form(models.Model):
             f"{url_prefix}form_questions_edit",
             args=[self.id, self.slug],
         )
+
+    def get_respond_url(self) -> str:
+        """Get the URL to start filling out the form."""
+        return reverse(f"{url_prefix}form_response", args=[self.id, self.slug])
 
     @classmethod
     def get_editable_forms(cls, user: _t.Optional[User]) -> QuerySet["Form"]:

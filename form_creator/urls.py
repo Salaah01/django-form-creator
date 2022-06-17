@@ -27,6 +27,16 @@ urlpatterns = [
         name="form_response",
     ),
     path(
+        "forms/<int:pk>-<slug:slug>/export/questions/",
+        views.download_questions,
+        name="download_questions",
+    ),
+    path(
+        "forms/<int:pk>-<slug:slug>/export/responses/",
+        views.download_responses,
+        name="download_responses",
+    ),
+    path(
         "forms/<int:pk>-<slug:slug>/questions/edit/",
         views.FormQuestionsEditView.as_view(),
         name="form_questions_edit",

@@ -8,6 +8,16 @@
 {% endblock %}
 
 {% block content %}
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{% url 'form_creator:form_list' %}">Forms</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">New</li>
+  </ol>
+</nav>
+
 <h1 class="mt-3 mb-3">New Form</h1>
 <form method="POST">
   {% csrf_token %}

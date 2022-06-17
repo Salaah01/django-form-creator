@@ -1,0 +1,18 @@
+{% extends 'admin/change_form.html' %}
+
+
+{% block object-tools-items %}
+	{% if original %}
+        <li>
+          <a href="{% url 'form_creator:download_questions' original.pk original.slug %}">
+            Download Questions
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'form_creator:download_responses' original.pk original.slug %}">
+            Download Responses
+          </a>
+        </li>
+    {% endif %}
+    {{ block.super }}
+{% endblock object-tools-items %}

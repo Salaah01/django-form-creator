@@ -16,66 +16,205 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Form',
+            name="Form",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=150)),
-                ('slug', models.SlugField(max_length=150)),
-                ('description', models.TextField(blank=True)),
-                ('created_dt', models.DateTimeField(auto_now_add=True)),
-                ('start_dt', models.DateTimeField(default=django.utils.timezone.now, verbose_name='Start on')),
-                ('end_dt', models.DateTimeField(blank=True, help_text='Leave blank for no end date.', null=True, verbose_name='End on')),
-                ('status', models.CharField(choices=[('draft', 'Draft'), ('active', 'Active'), ('inactive', 'Inactive')], default='draft', max_length=10)),
-                ('editors', models.ManyToManyField(blank=True, related_name='editors', to=settings.AUTH_USER_MODEL)),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=150)),
+                ("slug", models.SlugField(max_length=150)),
+                ("description", models.TextField(blank=True)),
+                ("created_dt", models.DateTimeField(auto_now_add=True)),
+                (
+                    "start_dt",
+                    models.DateTimeField(
+                        default=django.utils.timezone.now,
+                        verbose_name="Start on",
+                    ),
+                ),
+                (
+                    "end_dt",
+                    models.DateTimeField(
+                        blank=True,
+                        help_text="Leave blank for no end date.",
+                        null=True,
+                        verbose_name="End on",
+                    ),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("draft", "Draft"),
+                            ("active", "Active"),
+                            ("inactive", "Inactive"),
+                        ],
+                        default="draft",
+                        max_length=10,
+                    ),
+                ),
+                (
+                    "editors",
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name="editors",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'db_table': 'fc_form',
-                'ordering': ['status', '-created_dt'],
+                "db_table": "fc_form",
+                "ordering": ["status", "-created_dt"],
             },
         ),
         migrations.CreateModel(
-            name='FormQuestion',
+            name="FormQuestion",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('field_type', models.CharField(choices=[('text', 'Text'), ('textarea', 'Textarea'), ('email', 'Email'), ('integer', 'Integer'), ('decimal', 'Decimal'), ('float', 'Float'), ('boolean', 'Boolean'), ('date', 'Date'), ('datetime', 'DateTime'), ('time', 'Time'), ('url', 'URL'), ('choice', 'Choice'), ('multiple_choice', 'Multiple Choice')], default='text', max_length=32)),
-                ('question', models.CharField(max_length=150)),
-                ('description', models.TextField(blank=True, null=True)),
-                ('required', models.BooleanField(default=False)),
-                ('seq_no', models.IntegerField(default=0)),
-                ('choices', models.TextField(blank=True, help_text='Separate choices with a pipe (|).', null=True)),
-                ('form', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='questions', to='form_creator.form')),
-                ('related_question', models.ForeignKey(blank=True, help_text='The question to use for the related question.', null=True, on_delete=django.db.models.deletion.CASCADE, to='form_creator.formquestion')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "field_type",
+                    models.CharField(
+                        choices=[
+                            ("text", "Text"),
+                            ("textarea", "Textarea"),
+                            ("email", "Email"),
+                            ("integer", "Integer"),
+                            ("decimal", "Decimal"),
+                            ("float", "Float"),
+                            ("boolean", "Boolean"),
+                            ("date", "Date"),
+                            ("datetime", "DateTime"),
+                            ("time", "Time"),
+                            ("url", "URL"),
+                            ("choice", "Choice"),
+                            ("multiple_choice", "Multiple Choice"),
+                        ],
+                        default="text",
+                        max_length=32,
+                    ),
+                ),
+                ("question", models.CharField(max_length=150)),
+                ("description", models.TextField(blank=True, null=True)),
+                ("required", models.BooleanField(default=False)),
+                ("seq_no", models.IntegerField(default=0)),
+                (
+                    "choices",
+                    models.TextField(
+                        blank=True,
+                        help_text="Separate choices with a pipe (|).",
+                        null=True,
+                    ),
+                ),
+                (
+                    "form",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="questions",
+                        to="form_creator.form",
+                    ),
+                ),
+                (
+                    "related_question",
+                    models.ForeignKey(
+                        blank=True,
+                        help_text="The question to use for the related question.",
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="form_creator.formquestion",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'fc_form_question',
-                'ordering': ['form', 'seq_no'],
+                "db_table": "fc_form_question",
+                "ordering": ["form", "seq_no"],
             },
         ),
         migrations.CreateModel(
-            name='FormResponder',
+            name="FormResponder",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_dt', models.DateTimeField(auto_now_add=True)),
-                ('form', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='responders', to='form_creator.form')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_dt", models.DateTimeField(auto_now_add=True)),
+                (
+                    "form",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="responders",
+                        to="form_creator.form",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'db_table': 'fc_form_responder',
-                'ordering': ['-created_dt'],
+                "db_table": "fc_form_responder",
+                "ordering": ["-created_dt"],
             },
         ),
         migrations.CreateModel(
-            name='FormResponse',
+            name="FormResponse",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('answer', models.TextField(blank=True, null=True)),
-                ('form_responder', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='form_creator.formresponder')),
-                ('question', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='form_creator.formquestion')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("answer", models.TextField(blank=True, null=True)),
+                (
+                    "form_responder",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="form_creator.formresponder",
+                    ),
+                ),
+                (
+                    "question",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="form_creator.formquestion",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'fc_form_response',
-                'ordering': ['form_responder', 'question'],
+                "db_table": "fc_form_response",
+                "ordering": ["form_responder", "question"],
             },
         ),
     ]

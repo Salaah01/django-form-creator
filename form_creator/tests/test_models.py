@@ -37,6 +37,13 @@ class TestForm(TestCase):
         form = baker.make(fc_models.Form)
         self.assertFalse(form.can_edit(baker.make(User)))
 
+    def test_can_edit_anon_user(self):
+        """Test that the `can_edit` method returns `False` for an anonymous
+        user.
+        """
+        form = baker.make(fc_models.Form)
+        self.assertFalse(form.can_edit(AnonymousUser()))
+
     def test_completed_by(self):
         """Test that the `completed_by` method returns the correct instance of
         `FormResponder`.
@@ -113,6 +120,13 @@ class TestForm(TestCase):
         baker.make(fc_models.FormResponder, form=form, user=user)
         self.assertFalse(form.can_complete_form(user))
 
+    def test_can_complete_form_anon_user(self):
+        """Test that the `can_complete_form` method returns `False` for an
+        anonymous user.
+        """
+        form = baker.make(fc_models.Form)
+        self.assertFalse(form.can_complete_form(AnonymousUser()))
+
     def test_get_absolute_url(self):
         """Test that the `get_absolute_url` method returns a string
         instance.
@@ -142,6 +156,13 @@ class TestForm(TestCase):
         """
         self.assertIsInstance(
             baker.make(fc_models.Form).get_edit_questions_url(),
+            str,
+        )
+
+    def test_get_respond_url(self):
+        """Test that the `get_respond_url` method returns a string instance."""
+        self.assertIsInstance(
+            baker.make(fc_models.Form).get_respond_url(),
             str,
         )
 

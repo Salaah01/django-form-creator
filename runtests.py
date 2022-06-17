@@ -30,7 +30,7 @@ def runtests(test_path="form_creator"):
                 "crispy_forms",
                 "form_creator",
             ),
-            ROOT_URLCONF="form_creator.urls",
+            ROOT_URLCONF="example.example.urls",
             LANGUAGES=(("en", "English"),),
             MIDDLEWARE_CLASSES=(),
             MIDDLEWARE=[

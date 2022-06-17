@@ -12,7 +12,7 @@ from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
-from . import models as fc_models, forms as fc_forms
+from . import models as fc_models, forms as fc_forms, exporters as fc_exporters
 from .decorators import with_form, redirect_if_form_completed
 
 
@@ -202,3 +202,31 @@ class FormResponseView(View):
                 self.template_name,
                 {"object": form, "form": response_form},
             )
+
+
+@with_form(can_edit=True)
+def download_questions(
+    request: HttpRequest, form: fc_models.Form
+) -> HttpResponse:
+    """View to download a form's questions as a CSV file."""
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = "attachment; filename=questions.csv"
+    fc_exporters.export_questions(
+        fc_models.FormQuestion.objects.filter(form=form),
+        response,
+    )
+    return response
+
+
+@with_form(can_edit=True)
+def download_responses(
+    request: HttpRequest, form: fc_models.Form
+) -> HttpResponse:
+    """View to download a form's responses as a CSV file."""
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = "attachment; filename=responses.csv"
+    fc_exporters.export_responses(
+        fc_models.FormResponse.objects.filter(form_responder__form=form),
+        response,
+    )
+    return response

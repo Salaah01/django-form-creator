@@ -7,6 +7,18 @@
 
 {% block content %}
 
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{% url 'form_creator:form_list' %}">Forms</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="{{ object.get_absolute_url }}">{{ object|truncatechars:20 }}</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Delete</li>
+  </ol>
+</nav>
+
 <h1>Delete Form</h1>
 <p>Are you sure you want to delete this form: {{ object }}.</p>
 <p>
