@@ -17,6 +17,7 @@ class NewForm(forms.ModelForm):
         model = fc_models.Form
         fields = [
             "title",
+            "status",
             "description",
             "start_dt",
             "end_dt",
