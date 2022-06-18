@@ -1,6 +1,7 @@
 import typing as _t
 from django import forms
 from django.db import models
+from . import form_fields as fc_form_fields
 
 
 class FieldTypeChoices(models.TextChoices):
@@ -29,9 +30,9 @@ field_type_map = {
     FieldTypeChoices.DECIMAL: forms.DecimalField,
     FieldTypeChoices.FLOAT: forms.FloatField,
     FieldTypeChoices.BOOLEAN: forms.BooleanField,
-    FieldTypeChoices.DATE: forms.DateField,
-    FieldTypeChoices.DATETIME: forms.DateTimeField,
-    FieldTypeChoices.TIME: forms.TimeField,
+    FieldTypeChoices.DATE: fc_form_fields.DateField,
+    FieldTypeChoices.DATETIME: fc_form_fields.DateTimeField,
+    FieldTypeChoices.TIME: fc_form_fields.TimeField,
     FieldTypeChoices.URL: forms.URLField,
     FieldTypeChoices.CHOICE: forms.ChoiceField,
     FieldTypeChoices.MULTIPLE_CHOICE: forms.MultipleChoiceField,

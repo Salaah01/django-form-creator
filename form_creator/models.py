@@ -167,7 +167,11 @@ class FormQuestion(models.Model):
     question = models.CharField(max_length=150)
     description = models.TextField(blank=True, null=True)
     required = models.BooleanField(default=False)
-    seq_no = models.IntegerField(default=0)
+    seq_no = models.IntegerField(
+        default=0,
+        verbose_name="Order No.",
+        help_text="Order of the questions.",
+    )
     choices = models.TextField(
         blank=True,
         null=True,
