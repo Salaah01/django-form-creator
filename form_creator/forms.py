@@ -84,10 +84,12 @@ class FormQuestionForm(forms.ModelForm):
     choices = forms.CharField(
         widget=forms.Textarea(attrs={"rows": 1}),
         required=False,
+        help_text=fc_models.FormQuestion.choices.field.help_text,
     )
     description = forms.CharField(
         widget=forms.Textarea(attrs={"rows": 5}),
         required=False,
+        help_text=fc_models.FormQuestion.description.field.help_text,
     )
 
     class Meta:
