@@ -32,7 +32,10 @@ INSTALLED_APPS = [
 ]
 ```
 
-Run `python manage.py migrate`
+Run migrations:
+```bash
+python manage.py migrate
+```
 
 In your root `urls.py` file, add the following:
 ```python
