@@ -16,7 +16,7 @@ coverage==6.4.1
     # via
     #   -r requirements.in
     #   django-coverage-plugin
-django==4.0.4
+django==4.0.5
     # via
     #   -r requirements.in
     #   django-debug-toolbar
