@@ -4,6 +4,20 @@
 
 A Django application that lets users create forms. This is achieved firstly setting up a form and form questions. The user is able to select the field type per question and thus create a form that supports various field types.
 
+## Sections
+- [Django Form Creator](#django-form-creator)
+  - [Sections](#sections)
+  - [What's in the box?](#whats-in-the-box)
+  - [Installation](#installation)
+    - [PIP install and `settings.py`](#pip-install-and-settingspy)
+    - [Registering URLs](#registering-urls)
+    - [Using out of the box templates](#using-out-of-the-box-templates)
+  - [Usage](#usage)
+    - [Creating the form](#creating-the-form)
+    - [Completing the form](#completing-the-form)
+  - [Contributing](#contributing)
+    - [Contributing to the code](#contributing-to-the-code)
+
 ## What's in the box?
 The package contains the following:
 * Models to store forms, form questions and responses.
@@ -14,14 +28,11 @@ The package contains the following:
 
 ## Installation
 
-**PIP install and `settings.py`**
+### PIP install and `settings.py`
 The application can be installed by running the following command:
 ```
 pip install django-form-creator
 ```
-
-**Registering URLs**
-
 
 Once installed, add the following to your `settings.py` file:
 ```python
@@ -37,6 +48,7 @@ Run migrations:
 python manage.py migrate
 ```
 
+### Registering URLs
 In your root `urls.py` file, add the following:
 ```python
 from django.urls import path, include
@@ -99,6 +111,49 @@ MESSAGE_TAGS = {
     messages.ERROR: "alert-danger",
 }
 ```
+
+## Usage
+Once you have installed the application, it's time to create your first form.
+You can either go to the admin panel or access the `form_creator:form_list` view to start creating your first form. The default requirement is that you are logged in as a staff member in order to create a form.
+
+In our example, we will create a sample form via the admin panel, and then complete it via the front end.
+
+### Creating the form
+The first time to do is give your form a title and a description.
+
+**Owner**
+The form will need to have an owner. This is to allow a person to have control of the form via the `form_creator:form_detail` and `form_creator:form_edit` views. This is useful if the owner of the form is not a staff user who can manage the form via the admin panel. If this is not applicable, you can set the owner to yourself.
+
+**Status**
+There are 3 statuses to pick form: draft, active and inactive.
+
+Setting the status to either draft or inactive would mean that users are not able to complete the form.
+
+Setting the status to active would allow users to complete the form only if the form is within the start and end date.
+
+**Start and end dates**
+![Form creating in the admin panel](docs/static/admin-form-1.jpg)
+The form must have a start date and can have an end date. The start date is the date from which the form will become live. Users will only be able to complete the form from the start date if the from status is set to active.
+
+The end date is an optional configuration. If the value is set, it means that the form has no end date. Otherwise, the form will be live until the end date.
+
+**Editors**
+![Form editors](docs/static/admin-form-editors.jpg)
+The editors section is allowed to assigns users who can edit the form details and questions. They are not however able to delete the form itself.
+
+**Setting Questions**
+The next section is where you will be able to set the questions for your form. You are able to set question, any applicable choices and the field type.
+
+![Form questions](docs/static/admin-form-questions.jpg)
+
+### Completing the form
+Users are able to navigate to the URL for `forms_creator:form_response` to complete the form.
+
+The form generated will respect the form fields selected and any choices allowed.
+
+Once the form is completed, they are able to press submit to submit the form.
+
+![Form being completed](docs/static/sample-form-being-completed.jpg)
 
 ## Contributing
 If you would like to help develop this application here are a couple of things you can do:

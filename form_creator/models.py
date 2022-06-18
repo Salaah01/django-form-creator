@@ -48,6 +48,8 @@ class Form(models.Model):
         max_length=10,
         choices=StatusChoices.choices,
         default=StatusChoices.DRAFT,
+        help_text="This form will be available to users only when status is "
+        "active and the current date is between the start and end dates.",
     )
 
     objects = FormManager()
@@ -65,13 +67,13 @@ class Form(models.Model):
             self.slug = slugify(self.title)
         super().save(*args, **kwargs)
 
-    def can_edit(self, user: User) -> bool:
+    def can_edit(self, user: User, staff_can_edit: bool = True) -> bool:
         """Check if the user can edit the form."""
         if not user or not user.is_authenticated:
             return False
         return any(
             [
-                user.is_staff,
+                staff_can_edit and user.is_staff,
                 user.username == self.owner.username,
                 user in self.editors.all(),
             ]
@@ -97,7 +99,9 @@ class Form(models.Model):
         if not self.is_live():
             return False
 
-        if self.can_edit(user):
+        # We set the `staff_can_edit` to false as we want staff to be able to
+        # complete the forms.
+        if self.can_edit(user, False):
             return False
 
         return not bool(self.completed_by(user))
