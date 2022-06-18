@@ -6,8 +6,6 @@
 #
 asgiref==3.5.2
     # via django
-backports-zoneinfo==0.2.1
-    # via django
 black==22.3.0
     # via -r requirements.in
 click==8.1.3
@@ -18,7 +16,7 @@ coverage==6.3.2
     # via
     #   -r requirements.in
     #   django-coverage-plugin
-django==4.0.4
+django==4.0.5
     # via
     #   -r requirements.in
     #   django-debug-toolbar
@@ -58,8 +56,6 @@ sqlparse==0.4.2
     #   django
     #   django-debug-toolbar
 tomli==2.0.1
-    # via black
-typing-extensions==4.2.0
     # via black
 wheel==0.37.1
     # via pip-tools
