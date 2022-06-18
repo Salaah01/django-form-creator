@@ -184,6 +184,6 @@ make lint
 cd ..
 make test-coverage
 ```
-1.  Update the coverage on the [README.md](https://github.com/Salaah01/django-form-creator/blob/master/README.md) file: `make update_readme_cov`.
-2.  Commit your changes, push them to your repository and merge into master.
-3.  Create a pull request to merge into the remote repository.
+11.  Update the coverage on the [README.md](https://github.com/Salaah01/django-form-creator/blob/master/README.md) file: `make update_readme_cov`.
+12.  Commit your changes, push them to your repository and merge into master.
+13.  Create a pull request to merge into the remote repository.
