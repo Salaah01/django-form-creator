@@ -133,31 +133,36 @@ In our example, we will create a sample form via the admin panel, and then compl
 
 The first thing to do is give your form a title and a description.
 
-**Owner**
+#### Owner
+
 The form will need to have an owner. This is to allow a person to have control of the form via the `form_creator:form_detail` and `form_creator:form_edit` views. This is useful if the owner of the form is not a staff user who can manage the form via the admin panel. If this is not applicable, you can set the owner to yourself.
 
-**Status**
+#### Status
+
 There are 3 statuses to pick form: draft, active and inactive.
 
 Setting the status to either draft or inactive would mean that users are not able to complete the form.
 
 Setting the status to active would allow users to complete the form only if the form is within the start and end date.
 
-**Start and end dates**
+#### Start and end dates
+
 ![Form creating in the admin panel](docs/static/admin-form-1.jpg)
 The form must have a start date and can have an end date. The start date is the date from which the form will become live. Users will only be able to complete the form from the start date if the from status is set to active.
 
 The end date is an optional configuration. If the value is set, it means that the form has no end date. Otherwise, the form will be live until the end date.
 
-**Editors**
+#### Editors
+
 ![Form editors](docs/static/admin-form-editors.jpg)
 
 The editors section is allowed to assigns users who can edit the form details and questions. They are not however able to delete the form itself.
 
-**Setting Questions**
-The next section is where you will be able to set the questions for your form. You are able to set question, any applicable choices and the field type.
+#### Setting Questions
 
 ![Form questions](docs/static/admin-form-questions.jpg)
+
+The next section is where you will be able to set the questions for your form. You are able to set question, any applicable choices and the field type.
 
 ### Completing the form
 
