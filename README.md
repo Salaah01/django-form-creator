@@ -35,7 +35,7 @@ The package contains the following:
 
 The application can be installed by running the following command:
 
-```python
+```bash
 pip install django-form-creator
 ```
 
@@ -91,7 +91,7 @@ This might be useful when overriding templates and defining permissions.
 
 The package comes with some templates to allows uses to manage and complete forms. If you wish to use these templates, you will need to download `django-crispy-forms` and update your `settings.py` file. Follow the instructions below:
 
-```python
+```bash
 pip install django-crispy-forms
 ```
 
