@@ -1,21 +1,92 @@
 import typing as _t
-import sys
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Q, QuerySet
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.utils.text import slugify
 from django.urls import reverse
+from django.contrib.contenttypes.models import ContentType
 from .question_form_fields import FieldTypeChoices, is_choice_field
 from .managers import FormManager
 
 User = get_user_model()
+URL_PREFIX = "form_creator:"
 
-# When running test suite, it moans about the url app name not existing in the
-# namespace. This fixes it, but it's a bit of a hack.
-TESTING = "test" in sys.argv[0]
-url_prefix = "form_creator:"
+
+# Note: The following manager is defined here and not the managers.py file as
+# it depends on the models defined here. This is a workaround to avoid circular
+# imports.
+
+
+class SeqNoManager(models.Manager):
+    """Manager for that attaches the `seq_no` property to the model."""
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        object_type = ContentType.objects.get_for_model(qs.model)
+        return qs.annotate(
+            seq_no=models.Subquery(
+                FormElementOrder.objects.filter(
+                    element_type=object_type,
+                    element_id=models.OuterRef("id"),
+                )
+                .values_list("seq_no", flat=True)
+                .order_by("seq_no"),
+                output_field=models.IntegerField(),
+            )
+        )
+
+
+class SeqNoBaseModel(models.Model):
+    """Base model for models that have a `seq_no` field."""
+
+    objects = SeqNoManager()
+
+    class Meta:
+        abstract = True
+
+    def __init__(self, *args, **kwargs):
+        seq_no = kwargs.pop("seq_no", None)
+        super().__init__(*args, **kwargs)
+        self.seq_no = seq_no
+
+    def __lt__(self, other: models.Model):
+        return self.seq_no < other.seq_no
+
+    def clean(self):
+        """Validates the model."""
+        super().clean()
+        FormElementOrder(
+            form_id=self.form_id,
+            element_type=ContentType.objects.get_for_model(self),
+            element_id=1,
+            seq_no=self.seq_no,
+        ).full_clean()
+
+    def save(self, *args, **kwargs):
+        """Saves the model and raises an signal to update the seq_no."""
+        self.full_clean()
+        with transaction.atomic():
+            super().save(*args, **kwargs)
+            FormElementOrder.objects.update_or_create(
+                form_id=self.form_id,
+                element_type=ContentType.objects.get_for_model(self),
+                element_id=self.id,
+                defaults={
+                    "seq_no": self.seq_no
+                    or FormElementOrder.form_next_seq_no(self.form_id)
+                },
+            )
+
+    def delete(self, *args, **kwargs):
+        """Deletes the model and raises an signal to update the seq_no."""
+        inst = super().delete(*args, **kwargs)
+        FormElementOrder.objects.filter(
+            element_type=ContentType.objects.get_for_model(self),
+            element_id=self.id,
+        ).delete()
+        return inst
 
 
 class Form(models.Model):
@@ -108,26 +179,26 @@ class Form(models.Model):
 
     def get_absolute_url(self) -> str:
         """Get the absolute URL for the form."""
-        return reverse(f"{url_prefix}form_detail", args=[self.id, self.slug])
+        return reverse(f"{URL_PREFIX}form_detail", args=[self.id, self.slug])
 
     def get_edit_url(self) -> str:
         """Get the URL for the form's edit view."""
-        return reverse(f"{url_prefix}form_edit", args=[self.id, self.slug])
+        return reverse(f"{URL_PREFIX}form_edit", args=[self.id, self.slug])
 
     def get_delete_url(self) -> str:
         """Get the URL for the form's delete view."""
-        return reverse(f"{url_prefix}form_delete", args=[self.id, self.slug])
+        return reverse(f"{URL_PREFIX}form_delete", args=[self.id, self.slug])
 
     def get_edit_questions_url(self) -> str:
         """Get the URL for the form's questions edit view."""
         return reverse(
-            f"{url_prefix}form_questions_edit",
+            f"{URL_PREFIX}form_questions_edit",
             args=[self.id, self.slug],
         )
 
     def get_respond_url(self) -> str:
         """Get the URL to start filling out the form."""
-        return reverse(f"{url_prefix}form_response", args=[self.id, self.slug])
+        return reverse(f"{URL_PREFIX}form_response", args=[self.id, self.slug])
 
     @classmethod
     def get_editable_forms(cls, user: _t.Optional[User]) -> QuerySet["Form"]:
@@ -155,8 +226,71 @@ class Form(models.Model):
         return self.responders.count()
 
 
-class FormQuestion(models.Model):
-    """A collection of questions for a form."""
+class FormElementOrder(models.Model):
+    """The ordering of form elements."""
+
+    form = models.ForeignKey(
+        Form,
+        on_delete=models.CASCADE,
+    )
+    element_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    element_id = models.PositiveIntegerField()
+    seq_no = models.PositiveIntegerField()
+
+    class Meta:
+        db_table = "fc_form_element_order"
+        ordering = ("-form_id", "seq_no")
+        unique_together = ("form", "seq_no")
+
+    def __str__(self):
+        return f"{self.form} - {self.element_type} - {self.element_id}"
+
+    def __lt__(self, other: models.Model):
+        return self.seq_no < other.seq_no
+
+    @classmethod
+    def form_max_seq_no(cls, form_id: int) -> int:
+        """Get the maximum sequence number for the form."""
+        return (
+            cls.objects.filter(form_id=form_id)
+            .order_by("-seq_no")
+            .first()
+            .seq_no
+            or 0
+        )
+
+    @classmethod
+    def form_next_seq_no(cls, form_id: int) -> int:
+        """Get the next sequence number for the form."""
+        return cls.form_max_seq_no(form_id) + 10
+
+    @property
+    def element(self) -> _t.Union[models.Model]:
+        """Get the element if"""
+        return (
+            self.element_type.model_class()
+            .objects.filter(id=self.element_id)
+            .first()
+        )
+
+
+class HTMLComponent(SeqNoBaseModel):
+    """Represents additional HTML components that can be added to form page."""
+
+    form = models.ForeignKey(Form, on_delete=models.CASCADE)
+    html = models.TextField()
+
+    class Meta:
+        db_table = "fc_html_component"
+        verbose_name = "HTML Component"
+        verbose_name_plural = "HTML Components"
+
+    def __str__(self):
+        return self.html
+
+
+class FormQuestion(SeqNoBaseModel):
+    """A collection form questions for a form."""
 
     form = models.ForeignKey(
         Form,
@@ -171,11 +305,6 @@ class FormQuestion(models.Model):
     question = models.CharField(max_length=150)
     description = models.TextField(blank=True, null=True)
     required = models.BooleanField(default=False)
-    seq_no = models.IntegerField(
-        default=0,
-        verbose_name="Order No.",
-        help_text="Order of the questions.",
-    )
     choices = models.TextField(
         blank=True,
         null=True,
@@ -191,7 +320,7 @@ class FormQuestion(models.Model):
 
     class Meta:
         db_table = "fc_form_question"
-        ordering = ["form", "seq_no"]
+        ordering = ["form"]
         unique_together = ["form", "question"]
 
     def __str__(self):
