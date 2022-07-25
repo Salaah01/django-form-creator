@@ -13,6 +13,12 @@ class TextAreaFormFieldOverride:
     }
 
 
+class FormElementOrderInline(admin.TabularInline):
+    model = fc_models.FormElementOrder
+    extra = 0
+    fields = ("element", "seq_no",)
+    readonly_fields = ("element",)
+
 class FormQuestionInline(TextAreaFormFieldOverride, admin.StackedInline):
     model = fc_models.FormQuestion
     extra = 0
@@ -64,7 +70,7 @@ class FormAdmin(admin.ModelAdmin):
     raw_id_fields = ("owner",)
     prepopulated_fields = {"slug": ("title",)}
     readonly_fields = ("num_responses",)
-    inlines = (FormQuestionInline, FormResponderInline)
+    inlines = (FormQuestionInline, FormResponderInline, FormElementOrderInline)
     actions = ["export_questions", "export_responses"]
     fieldsets = (
         (
