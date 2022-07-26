@@ -238,7 +238,6 @@ class TestFromQuestionEditView(TestCase):
                 "form-0-seq_no": self.question_1.seq_no,
             },
         )
-
         self.assertEqual(
             res.url,
             reverse(

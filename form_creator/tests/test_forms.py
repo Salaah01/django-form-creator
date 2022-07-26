@@ -85,10 +85,10 @@ class TestFormQuestionForm(TestCase):
 
     def test_save_new_form(self):
         """Test that a new form saves correctly."""
-        form_obj = baker.make(fc_models.Form, title="q1")
+        form_inst = baker.make(fc_models.Form, title="q1")
         form = fc_forms.FormQuestionForm(
-            form_id=form_obj.id,
-            initial={
+            form_id=form_inst.id,
+            data={
                 "question": "q1",
             },
         )
