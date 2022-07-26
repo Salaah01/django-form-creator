@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.contrib.contenttypes.models import ContentType
 
 
 class FormsQueryset(models.QuerySet):
@@ -27,3 +28,27 @@ class FormManager(models.Manager):
     def get_queryset(self):
         """Return a queryset for the Form model."""
         return FormsQueryset(self.model, using=self._db)
+
+
+class FormElementOrderManager(models.Manager):
+    """Manager for the "FormElementOrder" model."""
+
+    def create_or_update_from_element(
+        self,
+        element: models.Model,
+    ) -> models.Model:
+        """Create or update a FormElementOrder from an element."""
+        return self.get_or_create(
+            form=element.form,
+            element_type=ContentType.objects.get_for_model(element),
+            element_id=element.id,
+            defaults={"seq_no": element.seq_no},
+        )[0]
+
+    def delete_element(self, element: models.Model) -> tuple:
+        """Delete a FormElementOrder from an element."""
+        return self.filter(
+            form=element.form,
+            element_type=ContentType.objects.get_for_model(element),
+            element_id=element.id,
+        ).delete()
