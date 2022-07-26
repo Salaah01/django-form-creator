@@ -81,13 +81,16 @@ class SeqNoBaseModel(models.Model):
                 seq_no=self.seq_no,
             ).full_clean()
 
-    def save(self, *args, **kwargs):
+    def save(self, seq_no: _t.Optional[int] = None, *args, **kwargs):
         """Saves the model and raises an signal to update the seq_no."""
         self.full_clean()
         with transaction.atomic():
             super().save(*args, **kwargs)
-            if self.seq_no is None:
-                self.seq_no = FormElementOrder.form_next_seq_no(self.form_id)
+            self.seq_no = (
+                self.seq_no
+                or seq_no
+                or FormElementOrder.form_next_seq_no(self.form_id)
+            )
             SEQ_NO_INSTANCE_SAVED.send(sender=self.__class__, instance=self)
 
     def delete(self, *args, **kwargs):
@@ -258,7 +261,13 @@ class FormElementOrder(models.Model):
     )
     element_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     element_id = models.PositiveIntegerField()
-    seq_no = models.PositiveIntegerField()
+    seq_no = (
+        models.PositiveIntegerField(
+            verbose_name="Sequence number",
+            help_text="The order in which the element is displayed (ordered "
+            "in ascending order)",
+        )
+    )
 
     objects = FormElementOrderManager()
 

@@ -1,3 +1,4 @@
+import typing as _t
 from django import forms
 from django.utils import timezone
 from django.db import transaction
@@ -91,6 +92,10 @@ class FormQuestionForm(forms.ModelForm):
         required=False,
         help_text=fc_models.FormQuestion.description.field.help_text,
     )
+    seq_no = forms.IntegerField(
+        required=False,
+        help_text=fc_models.FormElementOrder.seq_no.field.help_text,
+    )
 
     class Meta:
         model = fc_models.FormQuestion
@@ -99,13 +104,22 @@ class FormQuestionForm(forms.ModelForm):
     def __init__(self, form_id: int, *args, **kwargs):
         self.form_id = form_id
         super().__init__(*args, **kwargs)
+        self._set_seq_no_init(self.instance)
+
+    def _set_seq_no_init(
+        self, instance: _t.Optional[fc_models.FormQuestion]
+    ) -> None:
+        """Set the initial value of the `seq_no` field."""
+        if instance:
+            self.fields["seq_no"].initial = instance.seq_no
 
     def save(self, *args, **kwargs) -> fc_models.FormQuestion:
         """Save the form question and set the form id."""
         kwargs.pop("commit", None)
         form_question = super().save(commit=False, *args, **kwargs)
         form_question.form_id = self.form_id
-        form_question.save()
+        
+        form_question.save(seq_no=self.cleaned_data["seq_no"])
         return form_question
 
 
