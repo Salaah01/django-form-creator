@@ -90,6 +90,7 @@ class TestFormQuestionForm(TestCase):
             form_id=form_inst.id,
             data={
                 "question": "q1",
+                "field_type": FieldTypeChoices.TEXT,
             },
         )
         form.is_valid()
