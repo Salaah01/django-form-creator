@@ -1,5 +1,6 @@
 import typing as _t
-from django.db import models, transaction
+from django import dispatch
+from django.db import models
 from django.db.models import Q, QuerySet
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
@@ -8,10 +9,14 @@ from django.utils.text import slugify
 from django.urls import reverse
 from django.contrib.contenttypes.models import ContentType
 from .question_form_fields import FieldTypeChoices, is_choice_field
-from .managers import FormManager
+from .managers import FormManager, FormElementOrderManager
 
 User = get_user_model()
 URL_PREFIX = "form_creator:"
+
+
+SEQ_NO_INSTANCE_SAVED = dispatch.Signal()
+SEQ_NO_INSTANCE_DELETED = dispatch.Signal()
 
 
 # Note: The following manager is defined here and not the managers.py file as
@@ -55,38 +60,27 @@ class SeqNoBaseModel(models.Model):
         return self.seq_no < other.seq_no
 
     def clean(self):
-        """Validates the model."""
+        """The `seq_no` needs to be populated in the `FormElementOrder` model.
+        Therefore, run its validation here.
+        """
         super().clean()
         FormElementOrder(
             form_id=self.form_id,
             element_type=ContentType.objects.get_for_model(self),
-            element_id=1,
+            element_id=1,  # A dummy value as an actual value won't exist yet.
             seq_no=self.seq_no,
         ).full_clean()
 
     def save(self, *args, **kwargs):
         """Saves the model and raises an signal to update the seq_no."""
         self.full_clean()
-        with transaction.atomic():
-            super().save(*args, **kwargs)
-            FormElementOrder.objects.update_or_create(
-                form_id=self.form_id,
-                element_type=ContentType.objects.get_for_model(self),
-                element_id=self.id,
-                defaults={
-                    "seq_no": self.seq_no
-                    or FormElementOrder.form_next_seq_no(self.form_id)
-                },
-            )
+        super().save(*args, **kwargs)
+        SEQ_NO_INSTANCE_SAVED.send(sender=self.__class__, instance=self)
 
     def delete(self, *args, **kwargs):
         """Deletes the model and raises an signal to update the seq_no."""
-        inst = super().delete(*args, **kwargs)
-        FormElementOrder.objects.filter(
-            element_type=ContentType.objects.get_for_model(self),
-            element_id=self.id,
-        ).delete()
-        return inst
+        SEQ_NO_INSTANCE_DELETED.send(sender=self.__class__, instance=self)
+        return super().delete(*args, **kwargs)
 
 
 class Form(models.Model):
@@ -236,6 +230,8 @@ class FormElementOrder(models.Model):
     element_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     element_id = models.PositiveIntegerField()
     seq_no = models.PositiveIntegerField()
+
+    objects = FormElementOrderManager()
 
     class Meta:
         db_table = "fc_form_element_order"
