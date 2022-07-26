@@ -287,32 +287,34 @@ class TestFormQuestion(TestCase):
 
     def test_choice_list(self):
         """Test that the `choice_list` method returns a list of choices."""
-        form = baker.make(fc_models.FormQuestion, choices="a|b")
+        form = baker.make(
+            fc_models.FormQuestion,
+            field_type=FieldTypeChoices.CHOICE,
+            choices="a|b",
+        )
         self.assertEqual(form.choice_list, ["a", "b"])
 
     def test_clean_no_choice(self):
         """Test that the `clean` method raises an error when there are no
         choices but a field type requiring choices is selected.
         """
-        form = baker.make(
-            fc_models.FormQuestion,
-            field_type=FieldTypeChoices.CHOICE,
-            choices="",
-        )
         with self.assertRaises(ValidationError):
-            form.clean()
+            baker.make(
+                fc_models.FormQuestion,
+                field_type=FieldTypeChoices.CHOICE,
+                choices="",
+            )
 
     def test_clean_non_choice_field(self):
         """Test that the `clean` method raises an error when there are choices
         but a field type not requiring choices is selected.
         """
-        form = baker.make(
-            fc_models.FormQuestion,
-            field_type=FieldTypeChoices.TEXT,
-            choices="a|b",
-        )
         with self.assertRaises(ValidationError):
-            form.clean()
+            baker.make(
+                fc_models.FormQuestion,
+                field_type=FieldTypeChoices.TEXT,
+                choices="a|b",
+            )
 
 
 class TestFormResponder(TestCase):

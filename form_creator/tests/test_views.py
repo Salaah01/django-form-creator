@@ -166,10 +166,12 @@ class TestFromQuestionEditView(TestCase):
         self.question_1 = baker.make(
             fc_models.FormQuestion,
             form=self.form,
+            question='q1',
         )
         self.question_2 = baker.make(
             fc_models.FormQuestion,
             form=self.form,
+            question='q2',
         )
 
     def test_get_view_loads(self):
