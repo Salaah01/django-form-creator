@@ -1,6 +1,6 @@
 import typing as _t
 from django import dispatch
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Q, QuerySet
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
@@ -8,6 +8,7 @@ from django.utils import timezone
 from django.utils.text import slugify
 from django.urls import reverse
 from django.contrib.contenttypes.models import ContentType
+from . import checks
 from .question_form_fields import FieldTypeChoices, is_choice_field
 from .managers import FormManager, FormElementOrderManager
 
@@ -27,7 +28,15 @@ SEQ_NO_INSTANCE_DELETED = dispatch.Signal()
 class SeqNoManager(models.Manager):
     """Manager for that attaches the `seq_no` property to the model."""
 
+    @staticmethod
+    def _ready_check() -> bool:
+        """Returns True of the custom manager is ready to be used."""
+        return checks.is_content_types_loaded()
+
     def get_queryset(self):
+        if not self._ready_check():
+            return super().get_queryset()
+
         qs = super().get_queryset()
         object_type = ContentType.objects.get_for_model(qs.model)
         return qs.annotate(
@@ -64,18 +73,22 @@ class SeqNoBaseModel(models.Model):
         Therefore, run its validation here.
         """
         super().clean()
-        FormElementOrder(
-            form_id=self.form_id,
-            element_type=ContentType.objects.get_for_model(self),
-            element_id=1,  # A dummy value as an actual value won't exist yet.
-            seq_no=self.seq_no,
-        ).full_clean()
+        if self.seq_no is not None:
+            FormElementOrder(
+                form_id=self.form_id,
+                element_type=ContentType.objects.get_for_model(self),
+                element_id=1,  # Dummy value (actual value doesn't exist yet).
+                seq_no=self.seq_no,
+            ).full_clean()
 
     def save(self, *args, **kwargs):
         """Saves the model and raises an signal to update the seq_no."""
         self.full_clean()
-        super().save(*args, **kwargs)
-        SEQ_NO_INSTANCE_SAVED.send(sender=self.__class__, instance=self)
+        with transaction.atomic():
+            super().save(*args, **kwargs)
+            if self.seq_no is None:
+                self.seq_no = FormElementOrder.form_next_seq_no(self.form_id)
+            SEQ_NO_INSTANCE_SAVED.send(sender=self.__class__, instance=self)
 
     def delete(self, *args, **kwargs):
         """Deletes the model and raises an signal to update the seq_no."""
@@ -133,7 +146,11 @@ class Form(models.Model):
         super().save(*args, **kwargs)
 
     def can_edit(self, user: User, staff_can_edit: bool = True) -> bool:
-        """Check if the user can edit the form."""
+        """Check if the user can edit the form.
+        :param user: The user to check.
+        :param staff_can_edit: Whether staff can edit the form.
+        :return: True if the user can edit the form.
+        """
         if not user or not user.is_authenticated:
             return False
         return any(
@@ -145,19 +162,28 @@ class Form(models.Model):
         )
 
     def can_delete(self, user: User) -> bool:
-        """Check if the user can delete the form."""
+        """Check if the user can delete the form.
+        :param user: The user to check.
+        :return: True if the user can delete the form.
+        """
         if not user or not user.is_authenticated:
             return False
         return any([user.is_staff, user.username == self.owner.username])
 
     def completed_by(self, user: User) -> _t.Optional["FormResponder"]:
-        """Get the form responder for the user."""
+        """Get the form responder for the user.
+        :param user: The user to check.
+        :return: The form responder for the user.
+        """
         if not user or not user.is_authenticated:
             return None
         return self.responders.filter(user=user).first()
 
     def can_complete_form(self, user: User) -> bool:
-        """Check if the user can complete the form."""
+        """Check if the user can complete the form.
+        :param user: The user to check.
+        :return: True if the user can complete the form.
+        """
         if not user or not user.is_authenticated:
             return False
 
@@ -196,7 +222,10 @@ class Form(models.Model):
 
     @classmethod
     def get_editable_forms(cls, user: _t.Optional[User]) -> QuerySet["Form"]:
-        """Get the forms that the user can edit."""
+        """Get the forms that the user can edit.
+        :param user: The user to check.
+        :return: The forms that the user can edit.
+        """
         if not user or not user.is_authenticated:
             return cls.objects.none()
         return cls.objects.filter(Q(owner=user) | Q(editors=user))
@@ -246,18 +275,19 @@ class FormElementOrder(models.Model):
 
     @classmethod
     def form_max_seq_no(cls, form_id: int) -> int:
-        """Get the maximum sequence number for the form."""
-        return (
-            cls.objects.filter(form_id=form_id)
-            .order_by("-seq_no")
-            .first()
-            .seq_no
-            or 0
+        """Get the maximum sequence number for the form.
+        :param form_id: The ID of the form.
+        """
+        latest_inst = (
+            cls.objects.filter(form_id=form_id).order_by("-seq_no").first()
         )
+        return latest_inst and latest_inst.seq_no or 0
 
     @classmethod
     def form_next_seq_no(cls, form_id: int) -> int:
-        """Get the next sequence number for the form."""
+        """Get the next sequence number for the form.
+        :param form_id: The ID of the form.
+        """
         return cls.form_max_seq_no(form_id) + 10
 
     @property
