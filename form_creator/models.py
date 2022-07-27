@@ -1,4 +1,5 @@
 import typing as _t
+from ckeditor.fields import RichTextField
 from django import dispatch
 from django.db import models, transaction
 from django.db.models import Q, QuerySet
@@ -333,7 +334,7 @@ class HTMLComponent(SeqNoBaseModel):
     """Represents additional HTML components that can be added to form page."""
 
     form = models.ForeignKey(Form, on_delete=models.CASCADE)
-    html = models.TextField()
+    html = RichTextField(verbose_name="HTML")
 
     class Meta:
         db_table = "fc_html_component"

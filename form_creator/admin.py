@@ -4,7 +4,7 @@ from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse
 from django.forms import Textarea
 from django.urls import resolve
-from . import models as fc_models, exporters as fc_exporters
+from . import models as fc_models, exporters as fc_exporters, forms as fc_forms
 
 
 class TextAreaFormFieldOverride:
@@ -16,13 +16,27 @@ class TextAreaFormFieldOverride:
 class FormElementOrderInline(admin.TabularInline):
     model = fc_models.FormElementOrder
     extra = 0
-    fields = ("element", "seq_no",)
+    fields = (
+        "element",
+        "seq_no",
+    )
     readonly_fields = ("element",)
+    classes = ("collapse",)
+
+
+class HTMLComponentInline(admin.StackedInline):
+    model = fc_models.HTMLComponent
+    extra = 0
+    form = fc_forms.HTMLComponentForm
+    fields = ("html", "seq_no")
+    classes = ("collapse",)
+
 
 class FormQuestionInline(TextAreaFormFieldOverride, admin.StackedInline):
     model = fc_models.FormQuestion
     extra = 0
-    classes = ["collapse"]
+    form = fc_forms.FormQuestionAdminForm
+    classes = ("collapse",)
 
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
         if db_field.name == "related_question":
@@ -51,6 +65,7 @@ class FormResponderInline(TextAreaFormFieldOverride, admin.TabularInline):
         "created_dt",
     )
     show_change_link = True
+    classes = ("collapse",)
 
 
 class FormResponseInline(TextAreaFormFieldOverride, admin.TabularInline):
@@ -58,6 +73,7 @@ class FormResponseInline(TextAreaFormFieldOverride, admin.TabularInline):
     extra = 0
     fields = ("question", "answer")
     raw_id_fields = ("question",)
+    classes = ("collapse",)
 
 
 @admin.register(fc_models.Form)
@@ -70,7 +86,12 @@ class FormAdmin(admin.ModelAdmin):
     raw_id_fields = ("owner",)
     prepopulated_fields = {"slug": ("title",)}
     readonly_fields = ("num_responses",)
-    inlines = (FormQuestionInline, FormResponderInline, FormElementOrderInline)
+    inlines = (
+        HTMLComponentInline,
+        FormQuestionInline,
+        FormResponderInline,
+        FormElementOrderInline,
+    )
     actions = ["export_questions", "export_responses"]
     fieldsets = (
         (

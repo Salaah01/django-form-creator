@@ -11,6 +11,22 @@ from .question_form_fields import field_type_map, is_choice_field
 User = get_user_model()
 
 
+class SeqNoBaseFormMixin:
+    """A base form for all forms which have a sequence number which is stored
+    in the `FormElementOrder` model.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if hasattr(self, "instance"):
+            self._set_seq_no_init(self.instance)
+
+    def _set_seq_no_init(self, instance: fc_models.SeqNoBaseModel) -> None:
+        """Set the initial value of the `seq_no` field."""
+        if instance:
+            self.fields["seq_no"].initial = instance.seq_no
+
+
 class NewForm(forms.ModelForm):
     """Form for creating a new form."""
 
@@ -79,7 +95,19 @@ class DeleteForm(forms.ModelForm):
             raise forms.ValidationError("You cannot delete this form.")
 
 
-class FormQuestionForm(forms.ModelForm):
+class HTMLComponentForm(SeqNoBaseFormMixin, forms.ModelForm):
+
+    seq_no = forms.IntegerField(
+        required=False,
+        help_text=fc_models.FormElementOrder.seq_no.field.help_text,
+    )
+
+    class Meta:
+        model = fc_models.HTMLComponent
+        fields = "__all__"
+
+
+class FormQuestionBaseForm(SeqNoBaseFormMixin, forms.ModelForm):
     """Form for creating a new form question."""
 
     choices = forms.CharField(
@@ -101,17 +129,23 @@ class FormQuestionForm(forms.ModelForm):
         model = fc_models.FormQuestion
         exclude = ["form"]
 
+
+class FormQuestionAdminForm(FormQuestionBaseForm):
+    class Meta(FormQuestionBaseForm.Meta):
+        exclude = []
+
+    def save(self, *args, **kwargs) -> fc_models.FormQuestion:
+        """Save the form question and set the form id."""
+        kwargs.pop("commit", None)
+        form_question = super().save(commit=False, *args, **kwargs)
+        form_question.save(seq_no=self.cleaned_data["seq_no"])
+        return form_question
+
+
+class FormQuestionForm(FormQuestionBaseForm):
     def __init__(self, form_id: int, *args, **kwargs):
         self.form_id = form_id
         super().__init__(*args, **kwargs)
-        self._set_seq_no_init(self.instance)
-
-    def _set_seq_no_init(
-        self, instance: _t.Optional[fc_models.FormQuestion]
-    ) -> None:
-        """Set the initial value of the `seq_no` field."""
-        if instance:
-            self.fields["seq_no"].initial = instance.seq_no
 
     def save(self, *args, **kwargs) -> fc_models.FormQuestion:
         """Save the form question and set the form id."""
