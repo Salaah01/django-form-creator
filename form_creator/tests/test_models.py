@@ -317,6 +317,34 @@ class TestFormQuestion(TestCase):
             )
 
 
+class TestHTMLComponent(TestCase):
+    """Tests the HTMLComponent model."""
+
+    def test_str(self):
+        """Test that the `__str__` method returns a string instance."""
+        self.assertIsInstance(str(baker.make(fc_models.HTMLComponent)), str)
+
+    def test_lt(self):
+        """Test that the `__lt__` method correctly compares the component's
+        order.
+        """
+        component1 = baker.make(fc_models.HTMLComponent, seq_no=10)
+        component2 = baker.make(fc_models.HTMLComponent, seq_no=20)
+        self.assertTrue(component1 < component2)
+
+
+class TestFormElementOrder(TestCase):
+    """Tests for the FormElementOrder model."""
+
+    def test_lt(self):
+        """Test that the `__lt__` method correctly compares the element's
+        order.
+        """
+        element1 = baker.make(fc_models.FormElementOrder, seq_no=10)
+        element2 = baker.make(fc_models.FormElementOrder, seq_no=20)
+        self.assertTrue(element1 < element2)
+
+
 class TestFormResponder(TestCase):
     """Test the FormResponder model."""
 
