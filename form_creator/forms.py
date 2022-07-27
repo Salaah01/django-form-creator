@@ -118,7 +118,7 @@ class FormQuestionForm(forms.ModelForm):
         kwargs.pop("commit", None)
         form_question = super().save(commit=False, *args, **kwargs)
         form_question.form_id = self.form_id
-        
+
         form_question.save(seq_no=self.cleaned_data["seq_no"])
         return form_question
 

@@ -73,13 +73,35 @@ class SeqNoBaseModel(models.Model):
         Therefore, run its validation here.
         """
         super().clean()
-        if self.seq_no is not None:
-            FormElementOrder(
+
+        # If the seq_no is not provided, then it will be automatically
+        # generated and thus we don't need to validate it.
+        if self.seq_no is None:
+            return
+
+        content_type = ContentType.objects.get_for_model(self)
+
+        # If this record already exists and the seq_no is the same, then
+        # pass the validation.
+        if (
+            self.pk
+            and FormElementOrder.objects.filter(
                 form_id=self.form_id,
-                element_type=ContentType.objects.get_for_model(self),
-                element_id=1,  # Dummy value (actual value doesn't exist yet).
+                element_type=content_type,
+                element_id=self.id,
                 seq_no=self.seq_no,
-            ).full_clean()
+            ).exists()
+        ):
+            return
+
+        # We can now validate the seq_no as by reaching this point, the user
+        # is either changing the seq_no or creating a new record.
+        FormElementOrder(
+            form_id=self.form_id,
+            element_type=ContentType.objects.get_for_model(self),
+            element_id=1,  # Dummy value (actual value doesn't exist yet).
+            seq_no=self.seq_no,
+        ).full_clean()
 
     def save(self, seq_no: _t.Optional[int] = None, *args, **kwargs):
         """Saves the model and raises an signal to update the seq_no."""
@@ -261,12 +283,10 @@ class FormElementOrder(models.Model):
     )
     element_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     element_id = models.PositiveIntegerField()
-    seq_no = (
-        models.PositiveIntegerField(
-            verbose_name="Sequence number",
-            help_text="The order in which the element is displayed (ordered "
-            "in ascending order)",
-        )
+    seq_no = models.PositiveIntegerField(
+        verbose_name="Sequence number",
+        help_text="The order in which the element is displayed (ordered "
+        "in ascending order)",
     )
 
     objects = FormElementOrderManager()
