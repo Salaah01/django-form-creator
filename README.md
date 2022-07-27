@@ -4,6 +4,10 @@
 
 A Django application that lets users create forms. This is achieved firstly setting up a form and form questions. The user is able to select the field type per question and thus create a form that supports various field types.
 
+Aside from the form fields, this application allows you to freely insert additional HTML components into the form. Examples of this are headers and paragraphs. It leverages [django-ckeditor](https://django-ckeditor.readthedocs.io/en/latest/) to enable rich text editing.
+
+
+
 ## Sections
 
 - [Django Form Creator](#django-form-creator)
@@ -15,6 +19,11 @@ A Django application that lets users create forms. This is achieved firstly sett
     - [Using out of the box templates](#using-out-of-the-box-templates)
   - [Usage](#usage)
     - [Creating the form](#creating-the-form)
+      - [Owner](#owner)
+      - [Status](#status)
+      - [Start and end dates](#start-and-end-dates)
+      - [Editors](#editors)
+      - [Setting Questions](#setting-questions)
     - [Completing the form](#completing-the-form)
   - [Contributing](#contributing)
     - [Contributing to the code](#contributing-to-the-code)
@@ -45,9 +54,14 @@ Once installed, add the following to your `settings.py` file:
 INSTALLED_APPS = [
     ...
     "form_creator",
+    "ckeditor",
     ...
 ]
 ```
+
+The `ckeditor` package is required to enable rich text editing.
+
+This should be enough to get you started with `ckeditor`, however, if you do run into any issues, check the [django-ckeditor installation guide](https://django-ckeditor.readthedocs.io/en/latest/#required).
 
 Run migrations:
 
@@ -102,6 +116,7 @@ INSTALLED_APPS = [
     ...
     "crispy_forms",
     "form_creator",
+    "ckeditor",
     ...
 ]
 
