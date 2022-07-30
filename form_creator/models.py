@@ -1,7 +1,10 @@
 import typing as _t
+from functools import lru_cache
 from django import dispatch
+from django.apps import apps
 from django.db import models, transaction
 from django.db.models import Q, QuerySet
+from django.db.models.base import ModelBase
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.utils import timezone
@@ -120,6 +123,14 @@ class SeqNoBaseModel(models.Model):
         """Deletes the model and raises an signal to update the seq_no."""
         SEQ_NO_INSTANCE_DELETED.send(sender=self.__class__, instance=self)
         return super().delete(*args, **kwargs)
+
+    @classmethod
+    @lru_cache(maxsize=1)
+    def inherited_models(cls) -> _t.List[ModelBase]:
+        """Get the inherited models of the current model."""
+        return set(
+            model for model in apps.get_models() if issubclass(model, cls)
+        )
 
 
 class Form(models.Model):
@@ -282,7 +293,10 @@ class FormElementOrder(models.Model):
         Form,
         on_delete=models.CASCADE,
     )
-    element_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    element_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.CASCADE,
+    )
     element_id = models.PositiveIntegerField()
     seq_no = models.PositiveIntegerField(
         verbose_name="Sequence number",
@@ -295,7 +309,10 @@ class FormElementOrder(models.Model):
     class Meta:
         db_table = "fc_form_element_order"
         ordering = ("-form_id", "seq_no")
-        unique_together = ("form", "seq_no",)
+        unique_together = (
+            "form",
+            "seq_no",
+        )
 
     def __str__(self):
         return f"{self.form} - {self.element_type} - {self.element_id}"

@@ -2,6 +2,7 @@ django==4.1
 django-crispy-forms==1.14.0
 django-ckeditor==6.4.2
 django-debug-toolbar==3.5.0
+djangorestframework==3.13.1
 flake8==4.0.1
 black==22.6.0
 coverage==6.4.3

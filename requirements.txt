@@ -24,6 +24,7 @@ django==4.1
     #   django-ckeditor
     #   django-debug-toolbar
     #   django-js-asset
+    #   djangorestframework
     #   model-bakery
 django-ckeditor==6.4.2
     # via -r requirements.in
@@ -33,6 +34,8 @@ django-debug-toolbar==3.5.0
     # via -r requirements.in
 django-js-asset==2.0.0
     # via django-ckeditor
+djangorestframework==3.13.1
+    # via -r requirements.in
 flake8==4.0.1
     # via -r requirements.in
 mccabe==0.6.1
@@ -59,6 +62,8 @@ pyflakes==2.4.0
     # via flake8
 pyparsing==3.0.9
     # via packaging
+pytz==2022.1
+    # via djangorestframework
 sqlparse==0.4.2
     # via
     #   django
