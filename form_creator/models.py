@@ -1,5 +1,4 @@
 import typing as _t
-from ckeditor.fields import RichTextField
 from django import dispatch
 from django.db import models, transaction
 from django.db.models import Q, QuerySet
@@ -9,6 +8,7 @@ from django.utils import timezone
 from django.utils.text import slugify
 from django.urls import reverse
 from django.contrib.contenttypes.models import ContentType
+from .third_party.ckeditor.fields import RichTextField
 from . import checks
 from .question_form_fields import FieldTypeChoices, is_choice_field
 from .managers import FormManager, FormElementOrderManager
@@ -295,7 +295,7 @@ class FormElementOrder(models.Model):
     class Meta:
         db_table = "fc_form_element_order"
         ordering = ("-form_id", "seq_no")
-        unique_together = ("form", "seq_no")
+        unique_together = ("form", "seq_no",)
 
     def __str__(self):
         return f"{self.form} - {self.element_type} - {self.element_id}"

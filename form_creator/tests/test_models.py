@@ -7,6 +7,7 @@ from django.contrib.auth.models import AnonymousUser
 from model_bakery import baker
 from .. import models as fc_models
 from ..question_form_fields import FieldTypeChoices
+from . import baker_recipes
 
 
 User = get_user_model()
@@ -322,14 +323,14 @@ class TestHTMLComponent(TestCase):
 
     def test_str(self):
         """Test that the `__str__` method returns a string instance."""
-        self.assertIsInstance(str(baker.make(fc_models.HTMLComponent)), str)
+        self.assertIsInstance(str(baker_recipes.html_component.make()), str)
 
     def test_lt(self):
         """Test that the `__lt__` method correctly compares the component's
         order.
         """
-        component1 = baker.make(fc_models.HTMLComponent, seq_no=10)
-        component2 = baker.make(fc_models.HTMLComponent, seq_no=20)
+        component1 = baker_recipes.html_component.make(seq_no=10)
+        component2 = baker_recipes.html_component.make(seq_no=20)
         self.assertTrue(component1 < component2)
 
 

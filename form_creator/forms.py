@@ -8,6 +8,7 @@ from django.contrib.auth import get_user_model
 from . import models as fc_models
 from .question_form_fields import field_type_map, is_choice_field
 
+
 User = get_user_model()
 
 
