@@ -28,6 +28,7 @@ def runtests(test_path="form_creator"):
                 "django.contrib.sessions",
                 "django.contrib.messages",
                 "crispy_forms",
+                "ckeditor",
                 "form_creator",
             ),
             ROOT_URLCONF="example.example.urls",

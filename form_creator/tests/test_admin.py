@@ -39,10 +39,9 @@ class TestFormQuestionInline(TestCase):
         to this form.
         """
         response = self.client.get(self.change_form_url())
-
         self.assertEqual(
             (
-                response.context["inline_admin_form"]
+                response.context_data["inline_admin_formsets"][1]
                 .formset.forms[0]
                 .fields["related_question"]
                 .queryset.count()
@@ -54,11 +53,10 @@ class TestFormQuestionInline(TestCase):
         """Test that the related questions queryset provides no options when
         adding a new form.
         """
-
+        response = self.client.get(self.add_form_url())
         self.assertEqual(
             (
-                self.client.get(self.add_form_url())
-                .context[0]["inline_admin_formsets"][0]
+                response.context_data["inline_admin_formsets"][1]
                 .formset.form()
                 .fields["related_question"]
                 .queryset.count()

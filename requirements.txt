@@ -6,6 +6,8 @@
 #
 asgiref==3.5.2
     # via django
+backports-zoneinfo==0.2.1
+    # via django
 black==22.6.0
     # via -r requirements.in
 build==0.8.0
@@ -19,12 +21,18 @@ coverage==6.4.1
 django==4.0.6
     # via
     #   -r requirements.in
+    #   django-ckeditor
     #   django-debug-toolbar
+    #   django-js-asset
     #   model-bakery
+django-ckeditor==6.4.2
+    # via -r requirements.in
 django-crispy-forms==1.14.0
     # via -r requirements.in
 django-debug-toolbar==3.5.0
     # via -r requirements.in
+django-js-asset==2.0.0
+    # via django-ckeditor
 flake8==4.0.1
     # via -r requirements.in
 mccabe==0.6.1
@@ -60,6 +68,8 @@ tomli==2.0.1
     #   black
     #   build
     #   pep517
+typing-extensions==4.3.0
+    # via black
 wheel==0.37.1
     # via pip-tools
 

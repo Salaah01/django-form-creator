@@ -42,9 +42,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "crispy_forms",
-    "form_creator",
     "ckeditor",
-    "adminsortable2",
+    "form_creator",
 ]
 
 
