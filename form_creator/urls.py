@@ -1,5 +1,6 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
+from .api import routers
 
 app_name = "form_creator"
 
@@ -41,4 +42,5 @@ urlpatterns = [
         views.FormQuestionsEditView.as_view(),
         name="form_questions_edit",
     ),
+    path("api/", include("form_creator.api.routers")),
 ]
