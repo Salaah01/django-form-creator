@@ -27,7 +27,7 @@ class FormElementOrderInline(admin.TabularInline):
 class HTMLComponentInline(admin.StackedInline):
     model = fc_models.HTMLComponent
     extra = 0
-    form = fc_forms.HTMLComponentForm
+    form = fc_forms.HTMLComponentAdminForm
     fields = ("html", "seq_no")
     classes = ("collapse",)
 

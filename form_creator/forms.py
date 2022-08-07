@@ -1,4 +1,3 @@
-import typing as _t
 from django import forms
 from django.utils import timezone
 from django.db import transaction
@@ -96,7 +95,7 @@ class DeleteForm(forms.ModelForm):
             raise forms.ValidationError("You cannot delete this form.")
 
 
-class HTMLComponentForm(SeqNoBaseFormMixin, forms.ModelForm):
+class HTMLComponentBaseForm(SeqNoBaseFormMixin, forms.ModelForm):
 
     seq_no = forms.IntegerField(
         required=False,
@@ -105,7 +104,21 @@ class HTMLComponentForm(SeqNoBaseFormMixin, forms.ModelForm):
 
     class Meta:
         model = fc_models.HTMLComponent
-        fields = "__all__"
+        exclude = []
+
+
+class HTMLComponentForm(HTMLComponentBaseForm):
+    """Form for creating/editing HTML components."""
+
+
+class HTMLComponentAdminForm(HTMLComponentBaseForm):
+
+    def save(self, *args, **kwargs):
+        """Saves the form element and sets the sequence number."""
+        kwargs.pop("commit", None)
+        html_component = super().save(commit=False, *args, **kwargs)
+        html_component.save(seq_no=self.cleaned_data["seq_no"])
+        return html_component
 
 
 class FormQuestionBaseForm(SeqNoBaseFormMixin, forms.ModelForm):
@@ -136,8 +149,8 @@ class FormQuestionAdminForm(FormQuestionBaseForm):
         exclude = []
 
     def save(self, *args, **kwargs) -> fc_models.FormQuestion:
-        """Save the form question and set the form id."""
-        kwargs.pop("commit", None)
+        """Save the form question and sets the sequence number."""
+        kwargs.pop("commit", True)
         form_question = super().save(commit=False, *args, **kwargs)
         form_question.save(seq_no=self.cleaned_data["seq_no"])
         return form_question

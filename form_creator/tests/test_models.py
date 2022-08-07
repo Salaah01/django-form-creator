@@ -341,8 +341,8 @@ class TestFormElementOrder(TestCase):
         """Test that the `__lt__` method correctly compares the element's
         order.
         """
-        element1 = baker.make(fc_models.FormElementOrder, seq_no=10)
-        element2 = baker.make(fc_models.FormElementOrder, seq_no=20)
+        element1 = baker_recipes.form_element_order.make(seq_no=10)
+        element2 = baker_recipes.form_element_order.make(seq_no=20)
         self.assertTrue(element1 < element2)
 
 
@@ -360,3 +360,16 @@ class TestFormResponse(TestCase):
     def test_str(self):
         """Test that the `__str__` method returns a string instance."""
         self.assertIsInstance(str(baker.make(fc_models.FormResponse)), str)
+
+
+class TestSeqNoBaseModel(TestCase):
+    """Tests for the `SeqNoBaseModel` class."""
+
+    def test_inherited_models(self):
+        """Test that the `inherited_models` method returns a set of bae models
+        which inherit from the `SeqNoBaseModel` class.
+        """
+
+        models = fc_models.SeqNoBaseModel.inherited_models()
+        for model in models:
+            self.assertTrue(issubclass(model, fc_models.SeqNoBaseModel))
