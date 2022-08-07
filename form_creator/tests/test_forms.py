@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from model_bakery import baker
 from .. import forms as fc_forms, models as fc_models
 from ..question_form_fields import FieldTypeChoices
+from . import baker_recipes
 
 User = get_user_model()
 
@@ -96,6 +97,72 @@ class TestFormQuestionForm(TestCase):
         form.is_valid()
         form.save()
         self.assertEqual(fc_models.FormQuestion.objects.count(), 1)
+
+
+class TestFormQuestionAdminForm(TestCase):
+    """Tests for the `FormQuestionAdminForm` class."""
+
+    def test_save(self):
+        """On save, the `seq_no` should be provided which should in turn update
+        or create a record in `FormElementOrder`.
+        """
+
+        form_question = baker.make(fc_models.FormQuestion)
+        fields = [
+            f.name
+            for f in form_question.__class__._meta.get_fields()
+            if not f.is_relation
+        ]
+        data = {field: getattr(form_question, field) for field in fields}
+        data.update({"form": form_question.form, "seq_no": 9999})
+        form = fc_forms.FormQuestionAdminForm(
+            instance=form_question,
+            data=data,
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        form.save()
+
+        self.assertEqual(fc_models.FormQuestion.objects.count(), 1)
+        form = fc_models.FormQuestion.objects.first()
+        self.assertEqual(form.seq_no, 9999)
+        self.assertEqual(fc_models.FormElementOrder.objects.count(), 1)
+        self.assertEqual(
+            fc_models.FormElementOrder.objects.first().seq_no,
+            9999,
+        )
+
+
+class TestHTMLComponentAdminForm(TestCase):
+    def test_save(self):
+        """On save, the `seq_no` should be provided which should in turn update
+        or create a record in `FormElementOrder`.
+        """
+        html_component = baker_recipes.html_component.make()
+        data = {
+            "id": html_component.id,
+            "form": html_component.form,
+            "html": html_component.html,
+            "seq_no": 9999
+        }
+        form = fc_forms.HTMLComponentAdminForm(
+            instance=html_component,
+            data=data,
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        form.save()
+
+        self.assertEqual(fc_models.HTMLComponent.objects.count(), 1)
+        form = fc_models.HTMLComponent.objects.first()
+        self.assertEqual(form.seq_no, 9999)
+        self.assertEqual(fc_models.FormElementOrder.objects.count(), 1)
+        self.assertEqual(
+            fc_models.FormElementOrder.objects.first().seq_no,
+            9999,
+        )
 
 
 class TestCaptureResponseForm(TestCase):

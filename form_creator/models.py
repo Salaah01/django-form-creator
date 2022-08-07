@@ -113,8 +113,8 @@ class SeqNoBaseModel(models.Model):
         with transaction.atomic():
             super().save(*args, **kwargs)
             self.seq_no = (
-                self.seq_no
-                or seq_no
+                seq_no
+                or self.seq_no
                 or FormElementOrder.form_next_seq_no(self.form_id)
             )
             SEQ_NO_INSTANCE_SAVED.send(sender=self.__class__, instance=self)
@@ -147,7 +147,7 @@ class Form(models.Model):
     editors = models.ManyToManyField(User, related_name="editors", blank=True)
     title = models.CharField(max_length=150)
     slug = models.SlugField(max_length=150)
-    description = models.TextField(blank=True)
+    description = models.TextField(blank=True, null=True)
     created_dt = models.DateTimeField(auto_now_add=True)
     start_dt = models.DateTimeField(
         default=timezone.now,
@@ -163,6 +163,7 @@ class Form(models.Model):
         max_length=10,
         choices=StatusChoices.choices,
         default=StatusChoices.DRAFT,
+        blank=True,
         help_text="This form will be available to users only when status is "
         "active and the current date is between the start and end dates.",
     )
@@ -177,9 +178,18 @@ class Form(models.Model):
         return self.title
 
     def save(self, *args, **kwargs):
-        """Override the save method to set the slug."""
+        """Override the save method to set the slug and set default values."""
+        if not self.start_dt:
+            self.start_dt = self.__class__.start_dt.field.default()
+
+        if not self.status:
+            self.status = self.__class__.status.field.default
+
         if not self.slug:
             self.slug = slugify(self.title)
+
+        self.full_clean()
+
         super().save(*args, **kwargs)
 
     def can_edit(self, user: User, staff_can_edit: bool = True) -> bool:
@@ -289,9 +299,12 @@ class Form(models.Model):
 class FormElementOrder(models.Model):
     """The ordering of form elements."""
 
+    # Note:
     form = models.ForeignKey(
         Form,
         on_delete=models.CASCADE,
+        default=None,
+        related_name="form_elements",
     )
     element_type = models.ForeignKey(
         ContentType,
@@ -302,6 +315,7 @@ class FormElementOrder(models.Model):
         verbose_name="Sequence number",
         help_text="The order in which the element is displayed (ordered "
         "in ascending order)",
+        default=None,
     )
 
     objects = FormElementOrderManager()

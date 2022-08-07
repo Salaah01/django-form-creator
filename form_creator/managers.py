@@ -38,12 +38,15 @@ class FormElementOrderManager(models.Manager):
         element: models.Model,
     ) -> models.Model:
         """Create or update a FormElementOrder from an element."""
-        return self.get_or_create(
+        obj = self.get_or_create(
             form=element.form,
             element_type=ContentType.objects.get_for_model(element),
             element_id=element.id,
             defaults={"seq_no": element.seq_no},
         )[0]
+        obj.seq_no = element.seq_no
+        obj.save()
+        return obj
 
     def delete_element(self, element: models.Model) -> tuple:
         """Delete a FormElementOrder from an element."""

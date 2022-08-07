@@ -1,6 +1,4 @@
 from django.db.models import QuerySet
-from rest_framework.request import Request
-from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from .. import models as fc_models
 from . import serializers as fc_serializers
