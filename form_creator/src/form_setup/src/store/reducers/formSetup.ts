@@ -18,6 +18,7 @@ const initialState: State = {
     editorOptions: [],
     editors: [],
     title: "",
+    description: "",
     startDt: "",
     endDt: "",
     status: "",
