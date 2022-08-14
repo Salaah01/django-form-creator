@@ -1,26 +1,30 @@
 import React from 'react';
-import logo from './logo.svg';
+import { connect } from 'react-redux';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
+import Form from "react-bootstrap/Form";
+import DetailsForm from './containers/DetailsForm/DetailsForm';
+import FormElements from './containers/FormElements/FormElements';
+import { ConnectState } from './interfaces';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Form>
+      <DetailsForm />
+      <FormElements />
+    </Form>
   );
 }
 
-export default App;
+
+const mapStateToProps = (state: ConnectState) => {
+  return {
+    form: state.formSetup.form
+  }
+}
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {}
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);

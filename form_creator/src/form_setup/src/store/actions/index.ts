@@ -1,3 +1,3 @@
 export {
   updateForm,
-} from "./searchResults";
+} from "./formSetup";
