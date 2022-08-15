@@ -64,11 +64,31 @@ class TestFormElementOrderSerializer(TestCase):
 
     def test_get_element(self):
         """Test that the `get_element` method returns a serialized element."""
-        element = baker_recipes.html_component.make()
+        baker_recipes.html_component.make()
         serialized_data = self.serializer.get_element(
-            SimpleNamespace(element=element)
+            fc_models.FormElementOrder.objects.first()
         )
-        assert isinstance(serialized_data, dict)
+        self.assertIsInstance(serialized_data, dict)
+
+    def test_get_element_non_form_element_order_inst(self):
+        """Test that the `get_element` method returns a serialized element when
+        the object is not a `FormElementOrder` instance.
+        """
+        element = baker_recipes.html_component.make()
+        serialized_data = self.serializer.get_element(element)
+        self.assertIsInstance(serialized_data, dict)
+
+    def test_get_element_non_element(self):
+        """Test that the `get_element` method returns a serialized element when
+        the `element` attribute in a `FormElementOrder` instance is `None`.
+        """
+        baker_recipes.html_component.make()
+        form_element_order = fc_models.FormElementOrder.objects.first()
+        form_element_order.element_id = 9999
+        form_element_order.save()
+
+        serialized_data = self.serializer.get_element(form_element_order)
+        self.assertEqual(serialized_data, [])
 
     def test_for_form(self):
         """Test that a serializer is returned for a form."""
@@ -105,6 +125,121 @@ class TestFormElementOrderSerializer(TestCase):
             dict(validated_data.get("element_type", {})),
             data["element_type"],
         )
+
+    def test_validate_no_element(self):
+        """Test that a validation error is raised when no element is
+        provided.
+        """
+        with self.assertRaises(serializers.ValidationError):
+            self.serializer().validate({"element_type": {}})
+
+    def test_validate_no_element_type(self):
+        """Test that a validation error is raised when no element type is
+        provided.
+        """
+        with self.assertRaises(serializers.ValidationError):
+            self.serializer().validate({"element": {}})
+
+    def test_validate_passes(self):
+        """Test that the `validate` method passes when the data is valid."""
+        self.serializer().validate({"element": {}, "element_type": {}})
+
+    def test_create(self):
+        """Test the `create` method."""
+        form = baker.make(fc_models.Form)
+        data = {
+            "element": {
+                "form": form.id,
+                "seq_no": 99,
+                "html": "<h1><strong>Header 2</strong></h1>",
+            },
+            "element_type": {
+                "app_label": "form_creator",
+                "model": "htmlcomponent",
+            },
+            "form": form.id,
+        }
+        api_serializers.FormElementOrderSerializer.create(data)
+
+        self.assertEqual(fc_models.FormElementOrder.objects.all().count(), 1)
+        self.assertEqual(fc_models.HTMLComponent.objects.all().count(), 1)
+        form_element_order = fc_models.FormElementOrder.objects.first()
+        element = fc_models.HTMLComponent.objects.first()
+
+        self.assertEqual(form_element_order.seq_no, 99)
+        self.assertEqual(form_element_order.form, form)
+        self.assertEqual(
+            form_element_order.element_type,
+            ContentType.objects.get_for_model(fc_models.HTMLComponent),
+        )
+        self.assertEqual(element.html, "<h1><strong>Header 2</strong></h1>")
+
+    def test_create_invalid_data(self):
+        """Test that the `create` method raises a `ValidationError` if the
+        data provided is invalid.
+        """
+        data = {
+            "element": {
+                "form": "1",
+            },
+            "element_type": {
+                "app_label": "form_creator",
+                "model": "htmlcomponent",
+            },
+            "form": "1",
+        }
+        with self.assertRaises(serializers.ValidationError):
+            api_serializers.FormElementOrderSerializer.create(data)
+
+    def test_update(self):
+        """Test that the `update` method updates the instance."""
+        form = baker.make(fc_models.Form)
+        html_component = baker_recipes.html_component.make(form=form)
+
+        data = {
+            "element": {
+                "form": form.id,
+                "seq_no": 99,
+                "html": "updated",
+            },
+            "element_type": {
+                "app_label": "form_creator",
+                "model": "htmlcomponent",
+            },
+        }
+
+        api_serializers.FormElementOrderSerializer().update(
+            fc_models.FormElementOrder.objects.first(),
+            data,
+        )
+
+        self.assertEqual(fc_models.HTMLComponent.objects.all().count(), 1)
+        html_component = fc_models.HTMLComponent.objects.first()
+        self.assertEqual(html_component.seq_no, 99)
+        self.assertEqual(html_component.html, "updated")
+
+    def test_update_invalid_data(self):
+        """Test that the `update` method raises a `ValidationError` if the
+        data provided is invalid.
+        """
+        form = baker.make(fc_models.Form)
+        baker_recipes.html_component.make(form=form)
+
+        data = {
+            "element": {
+                "form": form.id,
+            },
+            "element_type": {
+                "app_label": "form_creator",
+                "model": "htmlcomponent",
+            },
+        }
+
+        with self.assertRaises(serializers.ValidationError):
+            api_serializers.FormElementOrderSerializer().update(
+                fc_models.FormElementOrder.objects.first(),
+                data,
+            )
 
 
 class TestFormSerializer(TestCase):

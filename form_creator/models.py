@@ -8,6 +8,7 @@ from django.db.models.base import ModelBase
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+from django.utils.functional import cached_property
 from django.utils.text import slugify
 from django.urls import reverse
 from django.contrib.contenttypes.models import ContentType
@@ -71,6 +72,18 @@ class SeqNoBaseModel(models.Model):
 
     def __lt__(self, other: models.Model):
         return self.seq_no < other.seq_no
+
+    @cached_property
+    def element_type(self) -> dict:
+        """Returns some serialized version of the element's content type. This
+        is needed to create the object using the `FormElementOrderSerializer`.
+        """
+        ct = ContentType.objects.get_for_model(self)
+        return {
+            "id": ct.id,
+            "app_label": ct.app_label,
+            "model": ct.model,
+        }
 
     def clean(self):
         """The `seq_no` needs to be populated in the `FormElementOrder` model.
@@ -299,7 +312,6 @@ class Form(models.Model):
 class FormElementOrder(models.Model):
     """The ordering of form elements."""
 
-    # Note:
     form = models.ForeignKey(
         Form,
         on_delete=models.CASCADE,
