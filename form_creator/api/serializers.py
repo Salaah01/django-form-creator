@@ -62,7 +62,7 @@ class HTMLComponentSerializer(
     class Meta:
         model = fc_models.HTMLComponent
         fields = "__all__"
-        optional_fields = ("form", "seq_no")
+        optional_fields = ("seq_no",)
 
 
 class FormQuestionSerializer(serializers.ModelSerializer):
@@ -94,11 +94,61 @@ class FormElementOrderSerializer(
             "form",
         )
 
+    def validate(self, attrs):
+        """Validate the element field."""
+        if "element" not in attrs:
+            raise serializers.ValidationError(
+                "You must provide an element field."
+            )
+        if "element_type" not in attrs:
+            raise serializers.ValidationError(
+                "You must provide an element_type field."
+            )
+        return super().validate(attrs)
+
+    @staticmethod
+    def create(validated_data: dict) -> fc_models.FormElementOrder:
+        """Create a new form element order."""
+        ct = get_content_type_from_dict(validated_data["element_type"])
+        model = ct.model_class()
+        serializer_class = get_seq_no_model_serializer(model)
+        serializer = serializer_class(data=validated_data["element"])
+        if serializer.is_valid():
+            return serializer.save()
+        else:
+            raise serializers.ValidationError(serializer.errors)
+
+    @staticmethod
+    def update(
+        instance: fc_models.FormElementOrder,
+        validated_data: dict,
+    ):
+        """Update an existing form element order."""
+        ct = get_content_type_from_dict(validated_data["element_type"])
+        model = ct.model_class()
+        serializer_class = get_seq_no_model_serializer(model)
+        serializer = serializer_class(
+            instance.element,
+            data=validated_data["element"],
+        )
+        if serializer.is_valid():
+            serializer.save()
+            instance.refresh_from_db()
+            return instance
+        else:
+            raise serializers.ValidationError(serializer.errors)
+
     @staticmethod
     def get_element(obj):
         """Return the serialized element."""
-        serializer = get_seq_no_model_serializer(obj.element.__class__)
-        return serializer(obj.element).data
+        if isinstance(obj, fc_models.FormElementOrder):
+            if obj.element is None:
+                return []
+            serializer = get_seq_no_model_serializer(obj.element.__class__)
+            return serializer(obj.element).data
+        else:
+            serializer = get_seq_no_model_serializer(obj.__class__)
+            return serializer(obj).data
 
     @classmethod
     def for_form(cls, form_id: int) -> "FormElementOrderSerializer":

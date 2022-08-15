@@ -369,7 +369,11 @@ class TestSeqNoBaseModel(TestCase):
         """Test that the `inherited_models` method returns a set of bae models
         which inherit from the `SeqNoBaseModel` class.
         """
-
         models = fc_models.SeqNoBaseModel.inherited_models()
         for model in models:
             self.assertTrue(issubclass(model, fc_models.SeqNoBaseModel))
+
+    def test_element_type(self):
+        """Test that the `element_type` method returns a dictionary."""
+        html_component = baker_recipes.html_component.make()
+        self.assertIsInstance(html_component.element_type, dict)
