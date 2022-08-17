@@ -1,8 +1,9 @@
 # Django Form Creator
 
+
 ![coverage: 100%](https://img.shields.io/badge/coverage-100%25-green.svg)
 
-A Django application that lets users create forms. This is achieved firstly setting up a form and form questions. The user is able to select the field type per question and thus create a form that supports various field types.
+A Django application that lets users create forms. This is achieved firstly setting up a form and form questions. The user is able to select the field type per question and thus create a form that supports various field types. 
 
 ## Sections
 
@@ -18,6 +19,7 @@ A Django application that lets users create forms. This is achieved firstly sett
     - [Completing the form](#completing-the-form)
   - [Contributing](#contributing)
     - [Contributing to the code](#contributing-to-the-code)
+  - [New Features Coming Up](#new-features-coming-up)
 
 ## What's in the box?
 
@@ -215,3 +217,7 @@ make test-coverage
 11. Update the coverage on the [README.md](https://github.com/Salaah01/django-form-creator/blob/master/README.md) file: `make update_readme_cov`.
 12. Commit your changes, push them to your repository and merge into master.
 13. Create a pull request to merge into the remote repository.
+
+## New Features Coming Up
+* Ability to add other arbitrary HTML components.
+* A fully fletched UI where you would be able to drop and drop in components
