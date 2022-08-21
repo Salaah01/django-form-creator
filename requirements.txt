@@ -31,7 +31,7 @@ mccabe==0.6.1
     # via flake8
 mock==4.0.3
     # via -r requirements.in
-model-bakery==1.6.0
+model-bakery==1.7.0
     # via -r requirements.in
 mypy-extensions==0.4.3
     # via black
