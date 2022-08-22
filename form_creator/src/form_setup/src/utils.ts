@@ -11,9 +11,7 @@ export const arrayToObject = (array: object[], key: string | number) => {
   }, {});
 };
 
-
-
-/**Gets the csrf_token if it exists. */
+/**Gets the CSRF token if it exists. */
 export const getCSRFToken = () => {
   for (const cookie of document.cookie.split("; ")) {
     if (cookie.startsWith("csrftoken")) {
@@ -40,4 +38,17 @@ export const updateObject = (
     ...oldObject,
     ...updatedProperties,
   };
+};
+
+/**
+ * Returns null where the value is undefined, null or an empty string.
+ * Otherwise returns the value.
+ * @param value - The value to check.
+ * @returns - The value if it is not null, undefined or an empty string.
+ */
+export const valueOrNull = (value: any) => {
+  if (value === 0 || value === false) {
+    return value;
+  }
+  return value || null;
 };

@@ -16,16 +16,16 @@ export interface ReducerAction {
 }
 
 
-interface FormElement {
+interface Element {
   id?: number;
   seqNo: number;
 }
 
-export interface HTMLComponent extends FormElement {
+export interface HTMLComponent extends Element {
   html: string;
 }
 
-export interface FormQuestion extends FormElement {
+export interface FormQuestion extends Element {
   fieldType: string;
   question: string;
   description: string;
@@ -34,11 +34,15 @@ export interface FormQuestion extends FormElement {
 }
 
 
-
 export interface ElementType {
   id?: string;
   appLabel?: string;
   model?: string;
+}
+
+export interface FormElement {
+  element: HTMLComponent | FormQuestion;
+  elementType: ElementType;
 }
 
 export interface Form {

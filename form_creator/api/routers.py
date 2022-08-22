@@ -5,7 +5,7 @@ router = routers.DefaultRouter()
 
 router.register("forms", views.FormViewSet, basename="form")
 router.register(
-    "form-element",
+    "form-elements",
     views.FormElementViewSet,
     basename="form-element",
 )

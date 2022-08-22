@@ -1,19 +1,18 @@
 // import {updateObject} from "../../utils";
-import { Form, HTMLComponent, FormQuestion, ElementType, ReducerAction } from "../../interfaces";
+import { Form, ReducerAction, FormElement } from "../../interfaces";
 import { updateObject } from "../../utils";
 import * as actionTypes from "../actions/actionTypes";
-
+import * as screens from "../../screens";
 export interface State {
+  screen: screens.ScreenOption,
   form: Form,
-  formElements: {
-    element: HTMLComponent | FormQuestion,
-    elementType: ElementType,
-  }[],
+  formElements: FormElement[],
   meta: {
     maxSeqNo: number,
   }
 }
 const initialState: State = {
+  screen: screens.FORM_DETAILS,
   form: {
     editorOptions: [],
     editors: [],

@@ -1,7 +1,6 @@
 {
   "name": "form_setup",
-  "version": "0.1.0",
-  "private": true,
+  "version": "2.0.0",
   "dependencies": {
     "@ckeditor/ckeditor5-build-classic": "^35.0.1",
     "@ckeditor/ckeditor5-react": "^5.0.2",
@@ -24,7 +23,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "BUILD_PATH='../../static_2/form_creator/js/form_setup' react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
