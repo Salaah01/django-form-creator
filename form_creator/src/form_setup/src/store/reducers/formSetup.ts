@@ -4,6 +4,7 @@ import {
   ReducerAction,
   FormElement,
   HttpMethod,
+  Form,
 } from "../../interfaces";
 import { updateObject } from "../../utils";
 import * as actionTypes from "../actions/actionTypes";
@@ -115,6 +116,26 @@ const deleteFormElement = (state: State, action: { id: number }): State => {
   }
 };
 
+/**
+ * Updates the state with new form data. This process improves the full
+ * replacement of the form data.
+ * @param action.form - The new form data.
+ * @param action.formElements - The new form elements.
+ */
+const updateFormDetails = (
+  state: State,
+  action: {
+    id: number;
+    formDetails: { form: Form; formElements: FormElement[] };
+  }
+) => {
+  console.log(action);
+  return updateObject(state, {
+    form: action.formDetails.form,
+    formElements: action.formDetails.formElements,
+  }) as State;
+};
+
 const reducer = (state: State = initialState, action: ReducerAction) => {
   switch (action.type) {
     case actionTypes.UPDATE_HTTP_METHOD:
@@ -140,6 +161,15 @@ const reducer = (state: State = initialState, action: ReducerAction) => {
 
     case actionTypes.DELETE_FORM_ELEMENT:
       return deleteFormElement(state, action as unknown as { id: number });
+
+    case actionTypes.UPDATE_FORM_DETAILS:
+      return updateFormDetails(
+        state,
+        action as unknown as {
+          id: number;
+          formDetails: { form: Form; formElements: FormElement[] };
+        }
+      );
 
     default:
       return state;

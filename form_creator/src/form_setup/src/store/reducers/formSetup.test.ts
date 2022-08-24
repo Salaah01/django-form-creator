@@ -285,3 +285,96 @@ describe("DELETE_FORM_ELEMENT", () => {
     });
   });
 });
+
+describe("UPDATE_FORM_DETAILS", () => {
+  const state = {
+    form: { title: "", startDt: "", endDt: "", status: "" },
+    formElements: [
+      {
+        element: { id: 1, seqNo: 1, html: "<h1>Hello World</h1>" },
+        elementType: {
+          id: "1",
+          appLabel: "form_creator",
+          model: "htmlcomponent",
+        },
+      },
+      {
+        element: { id: 2, seqNo: 2, html: "<h2>Hello World</h2>" },
+        elementType: {
+          id: "2",
+          appLabel: "form_creator_2",
+          model: "htmlcomponent_2",
+        },
+      },
+    ],
+  } as State;
+  const action = {
+    type: actionTypes.UPDATE_FORM_DETAILS,
+    formDetails: {
+      form: {
+        title: "Hello World",
+        startDt: "2020-01-01",
+        endDt: "2020-01-02",
+        status: "draft",
+      },
+      formElements: [
+        {
+          element: { id: 1, seqNo: 1, html: "<h1>Updated Hello World</h1>" },
+          elementType: {
+            id: "1",
+            appLabel: "form_creator",
+            model: "htmlcomponent",
+          },
+        },
+      ],
+    },
+  };
+
+  const updatedState = reducer(state, action);
+
+  it("should update the form details.", () => {
+    expect(updatedState.form).toEqual({
+      title: "Hello World",
+      startDt: "2020-01-01",
+      endDt: "2020-01-02",
+      status: "draft",
+    });
+  });
+
+  it("should update the form elements.", () => {
+    expect(updatedState.formElements).toEqual([
+      {
+        element: { id: 1, seqNo: 1, html: "<h1>Updated Hello World</h1>" },
+        elementType: {
+          id: "1",
+          appLabel: "form_creator",
+          model: "htmlcomponent",
+        },
+      },
+    ]);
+  });
+
+  it("should not have mutated the original state", () => {
+    expect(state).toEqual({
+      form: { title: "", startDt: "", endDt: "", status: "" },
+      formElements: [
+        {
+          element: { id: 1, seqNo: 1, html: "<h1>Hello World</h1>" },
+          elementType: {
+            id: "1",
+            appLabel: "form_creator",
+            model: "htmlcomponent",
+          },
+        },
+        {
+          element: { id: 2, seqNo: 2, html: "<h2>Hello World</h2>" },
+          elementType: {
+            id: "2",
+            appLabel: "form_creator_2",
+            model: "htmlcomponent_2",
+          },
+        },
+      ],
+    });
+  });
+});

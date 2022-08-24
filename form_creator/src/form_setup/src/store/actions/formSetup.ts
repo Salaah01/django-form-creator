@@ -1,4 +1,9 @@
-import { AnyPropsObj, FormElement, HttpMethod } from "../../interfaces";
+import {
+  AnyPropsObj,
+  FormDetail,
+  FormElement,
+  HttpMethod,
+} from "../../interfaces";
 import * as actionTypes from "./actionTypes";
 
 /**
@@ -62,7 +67,7 @@ export const deleteFormElement = (id: number) => {
  * Updates all form details including form elements.
  * @param formDetails - The form details to update.
  */
-export const updateFormDetails = (formDetails: AnyPropsObj) => {
+export const updateFormDetails = (formDetails: FormDetail) => {
   return {
     type: actionTypes.UPDATE_FORM_DETAILS,
     formDetails,

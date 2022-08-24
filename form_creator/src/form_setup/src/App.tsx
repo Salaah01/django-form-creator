@@ -17,7 +17,7 @@ interface AppProps {
   screen: screens.ScreenOption;
   form: interfaces.Form;
   formElements: interfaces.FormElement[];
-  updateForm: (formFields: { [field: string]: any }) => void;
+  updateFormDetails: (formDetails: interfaces.FormDetail) => void;
 }
 class App extends React.Component<AppProps> {
   detailsFormOnClickHandler = (event: Event) => {
@@ -41,7 +41,8 @@ class App extends React.Component<AppProps> {
     })
       .then((res) => res.json())
       .then((data: APIFormDetail) => {
-        this.props.updateForm(formDetailFromAPI(data));
+        console.log(formDetailFromAPI(data));
+        this.props.updateFormDetails(formDetailFromAPI(data));
       });
   };
 
@@ -73,8 +74,8 @@ const mapStateToProps = (state: interfaces.ConnectState) => {
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    updateForm: (formFields: { [field: string]: any }) =>
-      dispatch(actions.updateForm(formFields)),
+    updateFormDetails: (formDetails: interfaces.FormDetail) =>
+      dispatch(actions.updateFormDetails(formDetails)),
   };
 };
 
