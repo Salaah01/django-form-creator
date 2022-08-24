@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { createStore, compose, combineReducers } from "redux"
 import './index.css';
@@ -30,9 +30,9 @@ const rootReducer = combineReducers({
 const store = createStore(rootReducer, composeEnhancer);
 
 const app = <Provider store={store}><App /></Provider>;
-
-
-ReactDOM.render(app, document.getElementById('root'));
+const container = document.getElementById("root");
+const root = createRoot(container!);
+root.render(app);
 
 
 // If you want to start measuring performance in your app, pass a function

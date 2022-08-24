@@ -8,17 +8,19 @@ import DetailsForm from "./containers/DetailsForm/DetailsForm";
 import FormElements from "./containers/FormElements/FormElements";
 import * as screens from "./screens";
 import * as interfaces from "./interfaces";
+import * as actions from "./store/actions";
+import { APIFormDetail, formDetailFromAPI } from "./adapters";
 import { getCSRFToken, valueOrNull } from "./utils";
 
 interface AppProps {
+  httpMethod: interfaces.HttpMethod;
   screen: screens.ScreenOption;
   form: interfaces.Form;
   formElements: interfaces.FormElement[];
+  updateForm: (formFields: { [field: string]: any }) => void;
 }
 class App extends React.Component<AppProps> {
   detailsFormOnClickHandler = (event: Event) => {
-    console.log(1);
-
     event.preventDefault();
     const apiEndpoint = getAPIEndpoint("form-list", "api-form-list");
     const data = {
@@ -30,13 +32,17 @@ class App extends React.Component<AppProps> {
       form_elements: this.props.formElements,
     };
     fetch(apiEndpoint, {
-      method: "POST",
+      method: this.props.httpMethod,
       headers: {
         "Content-Type": "application/json",
         "X-CSRFToken": getCSRFToken() || "",
       },
       body: JSON.stringify(data),
-    }).then((res) => console.log(res));
+    })
+      .then((res) => res.json())
+      .then((data: APIFormDetail) => {
+        this.props.updateForm(formDetailFromAPI(data));
+      });
   };
 
   render() {
@@ -60,12 +66,16 @@ const mapStateToProps = (state: interfaces.ConnectState) => {
   return {
     screen: state.formSetup.screen,
     form: state.formSetup.form,
+    httpMethod: state.formSetup.httpMethod,
     formElements: state.formSetup.formElements,
   };
 };
 
 const mapDispatchToProps = (dispatch: any) => {
-  return {};
+  return {
+    updateForm: (formFields: { [field: string]: any }) =>
+      dispatch(actions.updateForm(formFields)),
+  };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);
