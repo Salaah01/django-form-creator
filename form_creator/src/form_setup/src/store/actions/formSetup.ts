@@ -4,6 +4,7 @@ import {
   FormElement,
   HttpMethod,
 } from "../../interfaces";
+import { ScreenOption } from "../../screens";
 import * as actionTypes from "./actionTypes";
 
 /**
@@ -71,5 +72,16 @@ export const updateFormDetails = (formDetails: FormDetail) => {
   return {
     type: actionTypes.UPDATE_FORM_DETAILS,
     formDetails,
+  };
+};
+
+/**
+ * Updates the current screen to use.
+ * @param screen - The screen to use.
+ */
+export const updateScreen = (screen: ScreenOption) => {
+  return {
+    type: actionTypes.UPDATE_SCREEN,
+    screen,
   };
 };

@@ -36,8 +36,10 @@ export interface FormQuestion extends Element {
   description: string;
   required: boolean;
   choices?: string[];
-  relatedQuestion?: number|null;
+  relatedQuestion?: number | null;
 }
+
+export type ElementOptions = HTMLComponent | FormQuestion;
 
 /**Interface for element type. Contains information which can identify what
  * type of element is being accessed.
@@ -50,7 +52,7 @@ export interface ElementType {
 
 /**Interface for a form element. */
 export interface FormElement {
-  element: HTMLComponent | FormQuestion;
+  element: ElementOptions;
   elementType: ElementType;
 }
 

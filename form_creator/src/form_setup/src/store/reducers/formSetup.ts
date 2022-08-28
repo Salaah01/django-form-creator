@@ -128,11 +128,23 @@ const updateFormDetails = (
     id: number;
     formDetails: { form: Form; formElements: FormElement[] };
   }
-) => {
-  console.log(action);
+): State => {
   return updateObject(state, {
     form: action.formDetails.form,
     formElements: action.formDetails.formElements,
+  }) as State;
+};
+
+/**
+ * Updates the current screen to use.
+ * @param action.screen - The screen to use.
+ */
+const updateScreen = (
+  state: State,
+  action: { screen: screens.ScreenOption }
+): State => {
+  return updateObject(state, {
+    screen: action.screen,
   }) as State;
 };
 
@@ -169,6 +181,12 @@ const reducer = (state: State = initialState, action: ReducerAction) => {
           id: number;
           formDetails: { form: Form; formElements: FormElement[] };
         }
+      );
+
+    case actionTypes.UPDATE_SCREEN:
+      return updateScreen(
+        state,
+        action as unknown as { screen: screens.ScreenOption }
       );
 
     default:

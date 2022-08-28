@@ -1,8 +1,6 @@
 const DJANGO_DEV_HOST = process.env.REACT_APP_DJANGO_DEV_HOST || "localhost";
 const DJANGO_DEV_PORT = process.env.REACT_APP_DJANGO_DEV_PORT || "8000";
 
-console.log(DJANGO_DEV_HOST)
-
 /**Depending on what the environment is, either use "/" as the root URL or
  * explicity set the host and port for the Django server.
  */
@@ -11,13 +9,12 @@ export const rootURL =
     ? "/"
     : `http://${DJANGO_DEV_HOST}:${DJANGO_DEV_PORT}/`;
 
-
 /**
  * Retrieve an API endpoint.
  * @param urlName - The name of the endpoint to retrieve.
  * @param inputElemID - The ID of the input element that contains the url name
  *  to view.
- * @param pk - The primary key of the object to retrieve. 
+ * @param pk - The primary key of the object to retrieve.
  * @returns - The URL of the endpoint.
  */
 const getAPIEndpoint = (

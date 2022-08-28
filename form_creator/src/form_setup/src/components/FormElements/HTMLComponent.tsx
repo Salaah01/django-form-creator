@@ -5,10 +5,12 @@ import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
 interface Props extends HTMLComponent {
+  key?: any;
   onUpdateHTML: (html: string) => void;
+  [attr: string]: any;
 }
 
-class HTMLComponentElem extends Component<Props> {
+class HTMLComponentElem extends Component<any> {
   state = {
     id: null,
     html: ""

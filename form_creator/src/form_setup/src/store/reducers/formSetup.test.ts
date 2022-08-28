@@ -1,5 +1,6 @@
 import reducer, { State } from "./formSetup";
 import * as actionTypes from "../actions/actionTypes";
+import * as screens from "../../screens";
 
 describe("UPDATE_HTTP_METHOD", () => {
   const state = {
@@ -375,6 +376,31 @@ describe("UPDATE_FORM_DETAILS", () => {
           },
         },
       ],
+    });
+  });
+});
+
+describe("UPDATE_SCREEN", () => {
+  const state = {
+    age: 10,
+    httpMethod: "GET",
+    screen: screens.FORM_DETAILS,
+  } as unknown as State;
+  const action = {
+    type: actionTypes.UPDATE_SCREEN,
+    screen: screens.FORM_ELEMENTS,
+  };
+  const updatedState = reducer(state, action);
+
+  it("should update the screen.", () => {
+    expect(updatedState.screen).toEqual(screens.FORM_ELEMENTS);
+  });
+
+  it("should not have mutated the original state", () => {
+    expect(state).toEqual({
+      age: 10,
+      httpMethod: "GET",
+      screen: screens.FORM_DETAILS,
     });
   });
 });

@@ -1,4 +1,1 @@
-export {
-  updateForm,
-  updateFormDetails,
-} from "./formSetup";
+export { updateForm, updateFormDetails, updateScreen } from "./formSetup";

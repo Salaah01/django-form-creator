@@ -34,7 +34,6 @@ const _newFormHtml = (form, numForms) => {
   // Update the form number.
   let new_html = orig_html.replaceAll("-0-", `-${numForms}-`);
   // Remove old value
-  console.log(new_html);
   new_html = new_html.replace(/(?<!<option )(value=")(.*?)(")/g, "$2$4");
   // Remove textarea value
   new_html = new_html.replace(/(<textarea.*?>)(.*?)(<)/g, "$1$3");

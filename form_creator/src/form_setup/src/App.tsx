@@ -12,14 +12,15 @@ import * as actions from "./store/actions";
 import { APIFormDetail, formDetailFromAPI } from "./adapters";
 import { getCSRFToken, valueOrNull } from "./utils";
 
-interface AppProps {
+interface Props {
   httpMethod: interfaces.HttpMethod;
   screen: screens.ScreenOption;
   form: interfaces.Form;
   formElements: interfaces.FormElement[];
   updateFormDetails: (formDetails: interfaces.FormDetail) => void;
+  updateScreen: (screen: screens.ScreenOption) => void;
 }
-class App extends React.Component<AppProps> {
+class App extends React.Component<Props> {
   detailsFormOnClickHandler = (event: Event) => {
     event.preventDefault();
     const apiEndpoint = getAPIEndpoint("form-list", "api-form-list");
@@ -41,8 +42,8 @@ class App extends React.Component<AppProps> {
     })
       .then((res) => res.json())
       .then((data: APIFormDetail) => {
-        console.log(formDetailFromAPI(data));
         this.props.updateFormDetails(formDetailFromAPI(data));
+        this.props.updateScreen(screens.FORM_ELEMENTS);
       });
   };
 
@@ -76,6 +77,8 @@ const mapDispatchToProps = (dispatch: any) => {
   return {
     updateFormDetails: (formDetails: interfaces.FormDetail) =>
       dispatch(actions.updateFormDetails(formDetails)),
+    updateScreen: (screen: screens.ScreenOption) =>
+      dispatch(actions.updateScreen(screen)),
   };
 };
 
