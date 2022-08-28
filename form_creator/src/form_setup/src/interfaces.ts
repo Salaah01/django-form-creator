@@ -21,7 +21,7 @@ export type HttpMethod = "POST" | "PUT";
 /**Common fields in an element. */
 interface Element {
   id?: number;
-  seqNo: number;
+  seqNo?: number;
 }
 
 /**Interface for a HTML component form element. */

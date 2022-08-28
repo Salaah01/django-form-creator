@@ -1,45 +1,37 @@
-import React, { Component } from "react";
-import { HTMLComponent } from "../../interfaces";
+import React, { ChangeEvent } from "react";
+import ElementBase from "./ElementBase";
 import Form from "react-bootstrap/Form";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import { HTML_COMPONENT } from "../../elementTypes";
 
-interface Props extends HTMLComponent {
-  key?: any;
-  onUpdateHTML: (html: string) => void;
-  [attr: string]: any;
-}
-
-class HTMLComponentElem extends Component<any> {
+class HTMLComponentElem extends ElementBase {
   state = {
     id: null,
-    html: ""
-  }
+    element: {
+      html: "",
+    },
+    elementType: HTML_COMPONENT,
+  };
 
-  componentDidMount() {
-    this.setState({
-      id: this.props.id,
-      html: this.props.html
-    })
-  }
-
-
-  onChangeHandler = (event: any, editor: { getData: () => any }) => {
+  onChangeHandler = (_: ChangeEvent, editor: { getData: () => any }) => {
     const data = editor.getData();
-    this.setState({ html: data })
-  }
+    this.setState({ element: { html: data } });
+  };
 
   render() {
-    return (<div>
-      <Form.Group controlId="htmlComponent">
-        <Form.Label>HTML Component</Form.Label>
-        <CKEditor
-          editor={ClassicEditor}
-          data={this.state.html}
-          onChange={this.onChangeHandler}
-        />
-      </Form.Group>
-    </div>)
+    return (
+      <div>
+        <Form.Group controlId="htmlComponent">
+          <Form.Label>HTML Component</Form.Label>
+          <CKEditor
+            editor={ClassicEditor}
+            data={this.state.element.html}
+            onChange={this.onChangeHandler}
+          />
+        </Form.Group>
+      </div>
+    );
   }
 }
 
