@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import { connect } from "react-redux";
 import {
@@ -7,6 +6,7 @@ import {
   FormElement as IFormElement,
   ElementType,
 } from "../../interfaces";
+import classes from "./FormElements.module.scss";
 import * as elementTypes from "../../elementTypes";
 import HTMLComponentElem from "../../components/FormElements/HTMLComponent";
 import FormQuestionElem from "../../components/FormElements/FormQuestion";
@@ -47,17 +47,19 @@ class FormElements extends Component<Props> {
 
   ComponentPicker = () => {
     return (
-      <div>
-        <h2>Elements</h2>
-        <div className="flex">
+      <div className={classes.ComponentPicker}>
+        <h5>Add component</h5>
+        <div className={classes.ComponentPicker__Buttons}>
           <Button
             variant="primary"
+            className={classes.ComponentPicker__Button}
             onClick={() => this.addNewElement(elementTypes.HTML_COMPONENT)}
           >
             Add HTML Component
           </Button>
           <Button
             variant="primary"
+            className={classes.ComponentPicker__Button}
             onClick={() => this.addNewElement(elementTypes.FORM_QUESTION)}
           >
             Add Form Question
@@ -92,14 +94,14 @@ class FormElements extends Component<Props> {
       elements.push(this.state.additionalElements[i]);
     }
 
-    return <div>{elements}</div>;
+    return <div className={classes.BuildArea}>{elements}</div>;
   };
 
   render() {
     return (
       <div>
         <h1>Form Elements</h1>
-        <div style={{ display: "flex" }}>
+        <div className={classes.MainContainer}>
           <this.BuildArea />
           <this.ComponentPicker />
         </div>

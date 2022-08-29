@@ -65,7 +65,7 @@ class FormQuestionElem extends ElementBase {
 
   render() {
     return (
-      <div>
+      <this.ElementWrapper>
         <Form.Group controlId="fieldType">
           <Form.Label>Field Type</Form.Label>
           <Form.Select aria-label="Field type">
@@ -115,7 +115,7 @@ class FormQuestionElem extends ElementBase {
             onChange={(event) => this.onChangeChoices(event)}
           />
         </Form.Group>
-      </div>
+      </this.ElementWrapper>
     );
   }
 }

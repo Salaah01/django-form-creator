@@ -21,16 +21,16 @@ class HTMLComponentElem extends ElementBase {
 
   render() {
     return (
-      <div>
+      <this.ElementWrapper>
         <Form.Group controlId="htmlComponent">
-          <Form.Label>HTML Component</Form.Label>
+          <Form.Label>HTM L Component</Form.Label>
           <CKEditor
             editor={ClassicEditor}
             data={this.state.element.html}
             onChange={this.onChangeHandler}
           />
         </Form.Group>
-      </div>
+      </this.ElementWrapper>
     );
   }
 }

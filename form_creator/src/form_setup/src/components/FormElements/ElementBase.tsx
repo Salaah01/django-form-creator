@@ -1,5 +1,6 @@
-import { Component } from "react";
+import React, { Component } from "react";
 import { FormElement } from "../../interfaces";
+import classes from "./ElementBase.module.scss";
 
 export interface State extends FormElement {}
 
@@ -22,6 +23,13 @@ abstract class ElementBase extends Component<any> {
       element: this.state.element,
       elementType: this.state.elementType,
     };
+  }
+
+  // ElementWrapper = (children: React.ReactElement) => {
+  //   return <div className={classes.Container}>{children}</div>
+  // }
+  ElementWrapper: React.FC<any> = ({ children }) => {
+    return <div className={classes.Container}>{children}</div>;
   }
 }
 

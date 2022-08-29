@@ -1,0 +1,26 @@
+.MainContainer {
+  display: flex;
+}
+
+.ComponentPicker {
+  position: sticky;
+  top: 2rem;
+  align-self: flex-start;
+
+  &__Buttons {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__Button {
+    margin-bottom: 0.5rem;
+  }
+}
+
+.BuildArea {
+  flex: 1;
+  border: 1px solid #e1e1e2;
+  margin-right: 2rem;
+  border-radius: 5px;
+  min-height: 75vh;
+}

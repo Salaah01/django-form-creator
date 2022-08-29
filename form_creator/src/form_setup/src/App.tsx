@@ -1,7 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./App.css";
 import Form from "react-bootstrap/Form";
 import getAPIEndpoint from "./apiEndpoints";
 import DetailsForm from "./containers/DetailsForm/DetailsForm";
@@ -48,19 +47,19 @@ class App extends React.Component<Props> {
   };
 
   render() {
-    if (this.props.screen === screens.FORM_DETAILS) {
-      return (
-        <Form>
-          <DetailsForm onSubmit={this.detailsFormOnClickHandler} />
-        </Form>
-      );
-    } else {
-      return (
-        <Form>
-          <FormElements />
-        </Form>
-      );
+    let FormContent;
+    switch (this.props.screen) {
+      case screens.FORM_DETAILS:
+        FormContent = <DetailsForm onSubmit={this.detailsFormOnClickHandler} />;
+        break;
+      case screens.FORM_ELEMENTS:
+        FormContent = <FormElements />;
+        break;
+      default:
+        FormContent = <div>Error</div>;
     }
+
+    return <div className="container mt-5"><Form>{FormContent}</Form></div>;
   }
 }
 
