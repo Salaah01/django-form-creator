@@ -3,71 +3,17 @@
  */
 
 import {
+  APIElementType,
+  APIFormDetail,
+  APIFormElement,
+  APIFormQuestion,
+  APIHTMLComponent,
   ElementType,
   FormDetail,
   FormElement,
   FormQuestion,
   HTMLComponent,
 } from "./interfaces";
-
-/**Interface for the form details part of an API. */
-interface APIForm {
-  id: number;
-  slug: string;
-  url: string;
-  title: string;
-  description: string | null;
-  created_dt: string;
-  start_dt: string;
-  end_dt: string | null;
-  status: string;
-}
-
-/**Contains common fields between a form element. */
-interface APIElement {
-  id: number;
-  form: number;
-  seq_no: number;
-}
-
-/**Interface for a HTML component. */
-interface APIHTMLComponent extends APIElement {
-  html: string;
-}
-
-/**Interface for a form question. */
-interface APIFormQuestion extends APIElement {
-  field_type: string;
-  question: string;
-  description: string;
-  required: boolean;
-  choices: string;
-  related_question: number | null;
-}
-
-/**Interface for the form element type. */
-interface APIElementType {
-  id: string;
-  app_label: string;
-  model: string;
-}
-
-/**Interface for a form element. */
-interface APIFormElement {
-  id: number;
-  element: APIHTMLComponent | APIFormQuestion;
-  element_type: APIElementType;
-  element_id: number;
-  seq_no: number;
-  form: number;
-}
-
-/**Interfaces represents an API response containing form details. The details
- * include the form elements belonging to a form.
- */
-export interface APIFormDetail extends APIForm {
-  form_elements: APIFormElement[];
-}
 
 /**
  * Converts an API form element to a form element.
@@ -92,6 +38,30 @@ export const formDetailFromAPI = (data: APIFormDetail): FormDetail => {
 };
 
 /**
+ * Converts the form detail data to a format acceptable by the API.
+ * @param data - The form detail data.
+ */
+export const formDetailToAPI = (data: FormDetail): APIFormDetail => {
+  const formDetail: APIFormDetail = {
+    title: data.form.title,
+    slug: data.form.slug || "",
+    description: data.form.description || null,
+    start_dt: data.form.startDt || "",
+    end_dt: data.form.endDt || "",
+    status: data.form.status || "",
+    form_elements: data.formElements.map((element) => {
+      return formElementToAPI(element);
+    }),
+  };
+
+  if (data.form.id) {
+    formDetail.id = data.form.id;
+  }
+
+  return formDetail;
+};
+
+/**
  * Converts the `element_type` field from the API to an element type.
  * @param data - The API element type.
  * @returns  - The element type.
@@ -105,6 +75,18 @@ const elementTypeFromAPI = (data: APIElementType): ElementType => {
 };
 
 /**
+ * Converts the element type data to a format acceptable by the API.
+ * @param data - The element type data.
+ * @returns
+ */
+const elementTypeToAPI = (data: ElementType): APIElementType => {
+  return {
+    app_label: data.appLabel!,
+    model: data.model!,
+  };
+};
+
+/**
  * Converts an API HTML component to an HTML component.
  * @param data - The API HTML component.
  * @returns - The HTML component.
@@ -112,9 +94,32 @@ const elementTypeFromAPI = (data: APIElementType): ElementType => {
 const HTMLComponentFormAPI = (data: APIHTMLComponent): HTMLComponent => {
   return {
     id: data.id,
+    form: data.form,
     seqNo: data.seq_no,
     html: data.html,
   };
+};
+
+/**
+ * Converts a HTML component element to a format acceptable by the API.
+ * @param data - The HTML component element.
+ */
+const HTMLComponentToAPI = (data: HTMLComponent): APIHTMLComponent => {
+  if (!data.form) {
+    throw new Error("Form is required.");
+  }
+  
+  const apiData: APIHTMLComponent = {
+    html: data.html,
+    form: data.form,
+  };
+  if (data.id) {
+    apiData.id = data.id;
+  }
+  if (data.seqNo) {
+    apiData.seq_no = data.seqNo;
+  }
+  return apiData;
 };
 
 /**
@@ -125,6 +130,7 @@ const HTMLComponentFormAPI = (data: APIHTMLComponent): HTMLComponent => {
 const formQuestionFromAPI = (data: APIFormQuestion): FormQuestion => {
   return {
     id: data.id,
+    form: data.form,
     seqNo: data.seq_no,
     fieldType: data.field_type,
     question: data.question,
@@ -133,6 +139,37 @@ const formQuestionFromAPI = (data: APIFormQuestion): FormQuestion => {
     choices: data.choices.split("|"),
     relatedQuestion: data.related_question,
   };
+};
+
+/**
+ * Converts a form question to a format acceptable by the API.
+ * @param data - The form question.
+ */
+const formQuestionToAPI = (data: FormQuestion): APIFormQuestion => {
+  if (!data.form) {
+    throw new Error("Form is required.");
+  }
+
+  const apiData: APIFormQuestion = {
+    form: data.form,
+    field_type: data.fieldType,
+    question: data.question,
+    description: data.description,
+    required: data.required,
+    choices: (data.choices || []).join("|"),
+  };
+
+  if (data.id) {
+    apiData.id = data.id;
+  }
+  if (data.seqNo) {
+    apiData.seq_no = data.seqNo;
+  }
+  if (data.relatedQuestion) {
+    apiData.related_question = data.relatedQuestion;
+  }
+
+  return apiData;
 };
 
 /**
@@ -160,4 +197,35 @@ export const formElementFromAPI = (data: APIFormElement): FormElement => {
     element: element,
     elementType: elementType,
   };
+};
+
+export const formElementToAPI = (data: FormElement): APIFormElement => {
+  const elementType = elementTypeToAPI(data.elementType);
+  const model = elementType.model;
+
+  let element: APIHTMLComponent | APIFormQuestion;
+  switch (model) {
+    case "htmlcomponent":
+      element = HTMLComponentToAPI(data.element as HTMLComponent);
+      break;
+    case "formquestion":
+      element = formQuestionToAPI(data.element as FormQuestion);
+      break;
+    default:
+      throw new Error(`Unknown element type: ${model}`);
+  }
+
+  const apiData: APIFormElement = {
+    element_type: elementType,
+    element: element,
+    form: element.form,
+  };
+  if (element.id) {
+    apiData.id = element.id;
+  }
+  if (element.seq_no) {
+    apiData.seq_no = element.seq_no;
+  }
+
+  return apiData;
 };

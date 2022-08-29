@@ -9,7 +9,7 @@ import FormElements from "./containers/FormElements/FormElements";
 import * as screens from "./screens";
 import * as interfaces from "./interfaces";
 import * as actions from "./store/actions";
-import { APIFormDetail, formDetailFromAPI } from "./adapters";
+import { formDetailFromAPI } from "./adapters";
 import { getCSRFToken, valueOrNull } from "./utils";
 
 interface Props {
@@ -41,7 +41,7 @@ class App extends React.Component<Props> {
       body: JSON.stringify(data),
     })
       .then((res) => res.json())
-      .then((data: APIFormDetail) => {
+      .then((data: interfaces.APIFormDetail) => {
         this.props.updateFormDetails(formDetailFromAPI(data));
         this.props.updateScreen(screens.FORM_ELEMENTS);
       });

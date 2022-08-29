@@ -12,6 +12,7 @@ abstract class ElementBase extends Component<any> {
     if (this.props.element) {
       this.setState({
         element: this.props.element,
+        form: this.props.form.id,
       });
     }
   };
