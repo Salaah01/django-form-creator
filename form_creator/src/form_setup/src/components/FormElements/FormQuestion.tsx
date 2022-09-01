@@ -4,6 +4,8 @@ import Form from "react-bootstrap/Form";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { FORM_QUESTION } from "../../elementTypes";
+import { FormElement } from "../../interfaces";
+import getAPIEndpoint from "../../apiEndpoints";
 
 const fieldTypeOptions = [
   { value: "text", label: "Text" },
@@ -21,6 +23,8 @@ const fieldTypeOptions = [
   { value: "multiple_choice", label: "Multiple Choice" },
 ];
 
+const choiceTypeOptions = ["choice", "multiple_choice"];
+
 class FormQuestionElem extends ElementBase {
   state = {
     id: null,
@@ -32,34 +36,73 @@ class FormQuestionElem extends ElementBase {
       choices: [],
     },
     elementType: FORM_QUESTION,
+    formChangedSinceSubmit: false,
   };
 
+  isComplete = (): boolean => {
+    const requiredFields = ["fieldType", "question"];
+    const element = this.state.element as { [key: string]: any };
+
+    if (requiredFields.some((field) => !element[field])) {
+      return false;
+    }
+
+    if (this.choiceTypeSelected()) {
+      return Boolean(element.choices.length);
+    }
+
+    return true;
+  };
+
+  /**Indicate whether the selected field type is of a choice type. */
+  choiceTypeSelected = (): boolean => {
+    return choiceTypeOptions.includes(this.state.element.fieldType);
+  };
+
+  /**
+   * Handler for when a user changes a form field value.
+   * @param event - The event that triggered the change.
+   * @param field - The field that was changed.
+   */
   onChangeFormValue = (event: ChangeEvent, field: string) => {
     this.setState((prevState: Readonly<State>) => ({
+      ...prevState,
       element: {
         ...prevState.element,
         [field]: (event.target as HTMLInputElement).value,
       },
+      formChangedSinceSubmit: true,
     }));
   };
 
+  /**
+   * Handler for when a user makes a change to the choices field.
+   * @param event - The event that triggered the change.
+   */
   onChangeChoices = (event: ChangeEvent) => {
     this.setState((prevState: Readonly<State>) => ({
+      ...prevState,
       element: {
         ...prevState.element,
         choices: (event.target as HTMLInputElement).value.split("|"),
       },
+      formChangedSinceSubmit: true,
     }));
   };
 
-  /**Event handler for updating the form description. */
+  /**Event handler for updating the form description.
+   * @param event - The event that triggered the change.
+   * @param editor - The editor that was changed.
+   */
   onChangeDescription = (_: ChangeEvent, editor: { getData: () => any }) => {
     const data = editor.getData();
     this.setState((prevState: Readonly<State>) => ({
+      ...prevState,
       element: {
         ...prevState.element,
         description: data,
       },
+      formChangedSinceSubmit: true,
     }));
   };
 
@@ -68,7 +111,10 @@ class FormQuestionElem extends ElementBase {
       <this.ElementWrapper>
         <Form.Group controlId="fieldType">
           <Form.Label>Field Type</Form.Label>
-          <Form.Select aria-label="Field type">
+          <Form.Select
+            aria-label="Field type"
+            onChange={(event) => this.onChangeFormValue(event, "fieldType")}
+          >
             <option>Select a field type</option>
             {fieldTypeOptions.map(({ value, label }) => (
               <option key={value} value={value}>
@@ -113,6 +159,7 @@ class FormQuestionElem extends ElementBase {
             placeholder="Enter choices (separated by '|')"
             value={this.state.element.choices.join("|")}
             onChange={(event) => this.onChangeChoices(event)}
+            disabled={!this.choiceTypeSelected()}
           />
         </Form.Group>
       </this.ElementWrapper>

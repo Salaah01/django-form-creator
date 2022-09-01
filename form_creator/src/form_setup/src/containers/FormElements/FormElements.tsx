@@ -12,6 +12,7 @@ import HTMLComponentElem from "../../components/FormElements/HTMLComponent";
 import FormQuestionElem from "../../components/FormElements/FormQuestion";
 
 interface Props {
+  form_id: number;
   formElements: IFormElement[];
 }
 
@@ -76,7 +77,7 @@ class FormElements extends Component<Props> {
     this.setState({
       additionalElements: [
         ...this.state.additionalElements,
-        <FormElement key={key} />,
+        <FormElement key={key} form_id={this.props.form_id} />,
       ],
     });
   };
@@ -112,6 +113,7 @@ class FormElements extends Component<Props> {
 
 const mapStateToProps = (state: ConnectState) => {
   return {
+    form_id: state.formSetup.form.id,
     formElements: state.formSetup.formElements,
   };
 };

@@ -65,7 +65,7 @@ class HTMLComponentSerializer(
         optional_fields = ("seq_no",)
 
 
-class FormQuestionSerializer(serializers.ModelSerializer):
+class FormQuestionSerializer(OptionalFieldsMixin, serializers.ModelSerializer):
     """Serializer for the `FormQuestion` model."""
 
     seq_no = serializers.IntegerField()
@@ -73,6 +73,7 @@ class FormQuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = fc_models.FormQuestion
         fields = "__all__"
+        optional_fields = ("seq_no",)
 
 
 class FormElementOrderSerializer(

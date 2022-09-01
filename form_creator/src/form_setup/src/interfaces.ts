@@ -32,7 +32,6 @@ interface APIElement {
   seq_no?: number;
 }
 
-
 /**Interface for a HTML component form element. */
 export interface HTMLComponent extends Element {
   html: string;
@@ -64,6 +63,7 @@ export interface APIFormQuestion extends APIElement {
 }
 
 export type ElementOptions = HTMLComponent | FormQuestion;
+export type APIElementOptions = APIHTMLComponent | APIFormQuestion;
 
 /**Interface for element type. Contains information which can identify what
  * type of element is being accessed.
@@ -123,7 +123,6 @@ export interface APIForm {
   status: string;
 }
 
-
 /**Interface for a complete set of form details which contains the form itself
  * as well as the form elements.
  */
@@ -135,6 +134,6 @@ export interface FormDetail {
 /**Interfaces represents an API response containing form details. The details
  * include the form elements belonging to a form.
  */
- export interface APIFormDetail extends APIForm {
+export interface APIFormDetail extends APIForm {
   form_elements: APIFormElement[];
 }
