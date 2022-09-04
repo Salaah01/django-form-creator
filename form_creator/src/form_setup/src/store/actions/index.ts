@@ -1,1 +1,8 @@
-export { updateForm, updateFormDetails, updateScreen } from "./formSetup";
+export {
+  updateHTTPMethod,
+  updateForm,
+  updateFormDetails,
+  updateScreen,
+  addFormElement,
+  addBlankFormElement,
+} from "./formSetup";

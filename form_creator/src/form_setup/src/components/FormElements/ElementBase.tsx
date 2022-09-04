@@ -1,19 +1,11 @@
 import React, { Component } from "react";
-import {
-  formElementFromAPI,
-  formElementToAPI,
-  HTMLComponentFromAPI,
-} from "../../adapters";
+import { formElementFromAPI, formElementToAPI } from "../../adapters";
 import getAPIEndpoint from "../../apiEndpoints";
 import {
   APIElementOptions,
   APIFormElement,
-  APIFormQuestion,
-  APIHTMLComponent,
   ElementOptions,
   FormElement,
-  FormQuestion,
-  HTMLComponent,
 } from "../../interfaces";
 import classes from "./ElementBase.module.scss";
 
@@ -39,7 +31,7 @@ abstract class ElementBase extends Component<any> {
       });
     } else {
       this.setState({
-        element: { ...this.state.element, form: this.props.form_id },
+        element: { ...this.state.element, form: this.props.formId },
       });
     }
   };

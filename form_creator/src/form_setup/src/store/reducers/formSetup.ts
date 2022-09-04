@@ -5,10 +5,13 @@ import {
   FormElement,
   HttpMethod,
   Form,
+  ElementType,
+  ElementOptions,
 } from "../../interfaces";
 import { updateObject } from "../../utils";
 import * as actionTypes from "../actions/actionTypes";
 import * as screens from "../../screens";
+import { HTML_COMPONENT } from "../../elementTypes";
 
 export interface State extends FormDetail {
   screen: screens.ScreenOption;
@@ -62,9 +65,51 @@ const addFormElement = (
   state: State,
   action: { formElement: FormElement }
 ): State => {
+  const formElement = action.formElement;
+
+  // Provide a sequence number for the new form element if it does not have
+  // one.
+  if (!formElement.element.seqNo) {
+    formElement.element.seqNo = state.meta.maxSeqNo + 10;
+  }
+
+  // Determine if the max sequence number needs to be updated.
+  const maxSeqNo = Math.max(state.meta.maxSeqNo, formElement.element.seqNo);
+
   return updateObject(state, {
     formElements: [...state.formElements, action.formElement],
+    meta: {
+      ...state.meta,
+      maxSeqNo,
+    },
   }) as State;
+};
+
+const addBlankFormElement = (
+  state: State,
+  action: { elementType: ElementType; formId: number }
+): State => {
+  let element: ElementOptions;
+  if (action.elementType === HTML_COMPONENT) {
+    element = {
+      form: action.formId,
+      seqNo: state.meta.maxSeqNo + 10,
+      html: "",
+    };
+  } else {
+    element = {
+      form: action.formId,
+      seqNo: state.meta.maxSeqNo + 10,
+      fieldType: "text",
+      question: "",
+      description: "",
+      required: false,
+    };
+  }
+
+  return addFormElement(state, {
+    formElement: { element, elementType: action.elementType },
+  });
 };
 
 /**
@@ -163,6 +208,12 @@ const reducer = (state: State = initialState, action: ReducerAction) => {
       return addFormElement(
         state,
         action as unknown as { formElement: FormElement }
+      );
+
+    case actionTypes.ADD_BLANK_FORM_ELEMENT:
+      return addBlankFormElement(
+        state,
+        action as unknown as { elementType: ElementType; formId: number }
       );
 
     case actionTypes.UPDATE_FORM_ELEMENT:

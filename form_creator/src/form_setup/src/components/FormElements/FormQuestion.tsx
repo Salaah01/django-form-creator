@@ -4,7 +4,6 @@ import Form from "react-bootstrap/Form";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { FORM_QUESTION } from "../../elementTypes";
-import { FormElement } from "../../interfaces";
 import getAPIEndpoint from "../../apiEndpoints";
 import { formQuestionFromAPI } from "../../adapters";
 

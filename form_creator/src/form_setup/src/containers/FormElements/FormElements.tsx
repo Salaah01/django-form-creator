@@ -8,37 +8,33 @@ import {
 } from "../../interfaces";
 import classes from "./FormElements.module.scss";
 import * as elementTypes from "../../elementTypes";
+import * as actions from "../../store/actions";
 import HTMLComponentElem from "../../components/FormElements/HTMLComponent";
 import FormQuestionElem from "../../components/FormElements/FormQuestion";
 
 interface Props {
-  form_id: number;
+  formId: number;
   formElements: IFormElement[];
+  addBlankFormElement: any;
 }
 
 const getFormElement = (elementType: ElementType) => {
   const { appLabel, model } = elementType;
 
-  switch ({ appLabel, model }) {
-    case {
-      appLabel: elementTypes.HTML_COMPONENT,
-      model: elementTypes.HTML_COMPONENT,
-    }:
-      return HTMLComponentElem;
-    default:
-      throw new Error(`No form element found for ${elementType}`);
-  }
-};
+  const elementTypeComponentMap: [ElementType, any][] = [
+    [elementTypes.HTML_COMPONENT, HTMLComponentElem],
+    [elementTypes.FORM_QUESTION, FormQuestionElem],
+  ];
 
-const AddElementFactory = (elementType: ElementType) => {
-  switch (elementType) {
-    case elementTypes.HTML_COMPONENT:
-      return HTMLComponentElem;
-    case elementTypes.FORM_QUESTION:
-      return FormQuestionElem;
-    default:
-      throw new Error(`No form element for ${elementType}`);
+  for (const elementTypeComponent of elementTypeComponentMap) {
+    const elemType = elementTypeComponent[0] as ElementType;
+
+    if (elemType.appLabel === appLabel && elemType.model === model) {
+      return elementTypeComponent[1];
+    }
   }
+
+  throw new Error(`No form element found for ${elementType}`);
 };
 
 class FormElements extends Component<Props> {
@@ -54,14 +50,24 @@ class FormElements extends Component<Props> {
           <Button
             variant="primary"
             className={classes.ComponentPicker__Button}
-            onClick={() => this.addNewElement(elementTypes.HTML_COMPONENT)}
+            onClick={() =>
+              this.props.addBlankFormElement(
+                elementTypes.HTML_COMPONENT,
+                this.props.formId
+              )
+            }
           >
             Add HTML Component
           </Button>
           <Button
             variant="primary"
             className={classes.ComponentPicker__Button}
-            onClick={() => this.addNewElement(elementTypes.FORM_QUESTION)}
+            onClick={() =>
+              this.props.addBlankFormElement(
+                elementTypes.FORM_QUESTION,
+                this.props.formId
+              )
+            }
           >
             Add Form Question
           </Button>
@@ -71,15 +77,7 @@ class FormElements extends Component<Props> {
   };
 
   addNewElement = (elementType: ElementType) => {
-    const FormElement = AddElementFactory(elementType);
-    const numElements = this.state.additionalElements.length;
-    const key = `additional-element-${numElements}`;
-    this.setState({
-      additionalElements: [
-        ...this.state.additionalElements,
-        <FormElement key={key} form_id={this.props.form_id} />,
-      ],
-    });
+    this.props.addBlankFormElement(elementType, this.props.formId);
   };
 
   BuildArea = () => {
@@ -87,7 +85,11 @@ class FormElements extends Component<Props> {
     for (let i = 0; i < this.props.formElements.length; i++) {
       const Element = getFormElement(this.props.formElements[i].elementType);
       elements.push(
-        <Element key={i} formElement={this.props.formElements[i]} />
+        <Element
+          key={i}
+          formElement={this.props.formElements[i]}
+          formId={this.props.formId}
+        />
       );
     }
 
@@ -113,13 +115,18 @@ class FormElements extends Component<Props> {
 
 const mapStateToProps = (state: ConnectState) => {
   return {
-    form_id: state.formSetup.form.id,
+    formId: state.formSetup.form.id,
     formElements: state.formSetup.formElements,
   };
 };
 
 const mapDispatchToProps = (dispatch: any) => {
-  return {};
+  return {
+    addFormElement: (formElement: IFormElement) =>
+      dispatch(actions.addFormElement(formElement)),
+    addBlankFormElement: (elementType: ElementType, formId: number) =>
+      dispatch(actions.addBlankFormElement(elementType, formId)),
+  };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(FormElements);

@@ -1,6 +1,7 @@
 import reducer, { State } from "./formSetup";
 import * as actionTypes from "../actions/actionTypes";
 import * as screens from "../../screens";
+import { FORM_QUESTION, HTML_COMPONENT } from "../../elementTypes";
 
 describe("UPDATE_HTTP_METHOD", () => {
   const state = {
@@ -76,6 +77,7 @@ describe("ADD_FORM_ELEMENT", () => {
         },
       },
     ],
+    meta: { maxSeqNo: 0 },
   } as State;
   const action = {
     type: actionTypes.ADD_FORM_ELEMENT,
@@ -109,7 +111,134 @@ describe("ADD_FORM_ELEMENT", () => {
           },
         },
       ],
+      meta: { maxSeqNo: 0 },
     });
+  });
+
+  it("should add a `seqNo` if it is not defined.", () => {
+    const action = {
+      type: actionTypes.ADD_FORM_ELEMENT,
+      formElement: {
+        element: { id: 2, html: "<h1>Hello World</h1>" },
+        elementType: {
+          id: "2",
+          appLabel: "form_creator_2",
+          model: "htmlcomponent_2",
+        },
+      },
+    };
+    const updatedState = reducer(state, action);
+    expect(updatedState.formElements[1].element.seqNo).toBe(10);
+  });
+
+  it("should update the `maxSeqNo` if a new element has a larger `seqNo`", () => {
+    const action = {
+      type: actionTypes.ADD_FORM_ELEMENT,
+      formElement: {
+        element: { id: 2, seqNo: 20, html: "<h1>Hello World</h1>" },
+        elementType: {
+          id: "2",
+          appLabel: "form_creator_2",
+          model: "htmlcomponent_2",
+        },
+      },
+    };
+    const updatedState = reducer(state, action);
+    expect(updatedState.meta.maxSeqNo).toBe(20);
+  });
+});
+
+describe("ADD_BLANK_FORM_ELEMENT", () => {
+  const state = {
+    form: { title: "", startDt: "", endDt: "", status: "" },
+    formElements: [
+      {
+        element: { id: 1, seqNo: 1, html: "<h1>Hello World</h1>" },
+        elementType: {
+          id: "1",
+          appLabel: "form_creator",
+          model: "htmlcomponent",
+        },
+      },
+    ],
+    meta: { maxSeqNo: 0 },
+  } as State;
+  const action = {
+    type: actionTypes.ADD_BLANK_FORM_ELEMENT,
+    formId: 1,
+    elementType: HTML_COMPONENT,
+  };
+
+  it("should add a new HTML component.", () => {
+    const updatedState = reducer(state, action);
+    expect(updatedState.formElements.length).toBe(2);
+    expect(updatedState.formElements).toEqual([
+      {
+        element: { id: 1, seqNo: 1, html: "<h1>Hello World</h1>" },
+        elementType: {
+          id: "1",
+          appLabel: "form_creator",
+          model: "htmlcomponent",
+        },
+      },
+      {
+        element: {
+          seqNo: 10,
+          html: "",
+          form: 1,
+        },
+        elementType: HTML_COMPONENT,
+      },
+    ]);
+  });
+
+  it("should not have mutated the original state", () => {
+    expect(state).toEqual({
+      form: { title: "", startDt: "", endDt: "", status: "" },
+      formElements: [
+        {
+          element: { id: 1, seqNo: 1, html: "<h1>Hello World</h1>" },
+          elementType: {
+            id: "1",
+            appLabel: "form_creator",
+            model: "htmlcomponent",
+          },
+        },
+      ],
+      meta: { maxSeqNo: 0 },
+    });
+  });
+
+  it("should add a form question element.", () => {
+    const action = {
+      type: actionTypes.ADD_BLANK_FORM_ELEMENT,
+      formId: 1,
+      elementType: FORM_QUESTION,
+    };
+
+    const updatedState = reducer(state, action);
+    expect(updatedState.formElements.length).toBe(2);
+    expect(updatedState.formElements).toEqual([
+      {
+        element: { id: 1, seqNo: 1, html: "<h1>Hello World</h1>" },
+        elementType: {
+          id: "1",
+          appLabel: "form_creator",
+          model: "htmlcomponent",
+        },
+      },
+      {
+        element: {
+          seqNo: 10,
+          form: 1,
+          fieldType: "text",
+          description: "",
+          question: "",
+          required: false,
+        },
+        elementType: FORM_QUESTION,
+      },
+    ]);
   });
 });
 
