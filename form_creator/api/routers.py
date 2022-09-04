@@ -9,6 +9,16 @@ router.register(
     views.FormElementViewSet,
     basename="form-element",
 )
+router.register(
+    "html-components",
+    views.HTMLComponentViewSet,
+    basename="html-component",
+)
+router.register(
+    "form-questions",
+    views.FormQuestionViewSet,
+    basename="form-question",
+)
 
 urlpatterns = router.urls
 app_name = "api"

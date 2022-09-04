@@ -53,6 +53,18 @@ const getAPIEndpoint = (
       }
       return `${apiRoot}form-elements/${pk}/`;
 
+    case "form-element-html-component":
+      if (!pk) {
+        throw new Error("No pk provided for html-component");
+      }
+      return `${apiRoot}html-components/${pk}/`;
+
+    case "form-element-form-question":
+      if (!pk) {
+        throw new Error("No pk provided for form-question");
+      }
+      return `${apiRoot}form-questions/${pk}/`;
+
     default:
       throw new Error(`Unknown urlName: ${urlName}`);
   }

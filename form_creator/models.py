@@ -364,8 +364,8 @@ class FormElementOrder(models.Model):
         return cls.form_max_seq_no(form_id) + 10
 
     @property
-    def element(self) -> _t.Union[models.Model]:
-        """Get the element if"""
+    def element(self) -> _t.Union[models.Model, None]:
+        """Get the element if it exists."""
         return (
             self.element_type.model_class()
             .objects.filter(id=self.element_id)

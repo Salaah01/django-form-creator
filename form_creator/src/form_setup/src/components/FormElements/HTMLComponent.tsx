@@ -4,8 +4,10 @@ import Form from "react-bootstrap/Form";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { HTML_COMPONENT } from "../../elementTypes";
-import { APIHTMLComponent, ConnectState } from "../../interfaces";
+import { ConnectState } from "../../interfaces";
 import { connect } from "react-redux";
+import getAPIEndpoint from "../../apiEndpoints";
+import { HTMLComponentFromAPI } from "../../adapters";
 
 class HTMLComponentElem extends ElementBase {
   state = {
@@ -33,7 +35,15 @@ class HTMLComponentElem extends ElementBase {
     return Boolean(this.state.element.html);
   };
 
-  
+  elementFromAPI = HTMLComponentFromAPI;
+
+  putURL = (): string => {
+    return getAPIEndpoint(
+      "form-element-html-component",
+      "form-element-html-component-url",
+      this.state.id
+    );
+  };
 
   render() {
     return (

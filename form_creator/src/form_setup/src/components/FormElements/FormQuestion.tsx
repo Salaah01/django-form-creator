@@ -6,6 +6,7 @@ import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { FORM_QUESTION } from "../../elementTypes";
 import { FormElement } from "../../interfaces";
 import getAPIEndpoint from "../../apiEndpoints";
+import { formQuestionFromAPI } from "../../adapters";
 
 const fieldTypeOptions = [
   { value: "text", label: "Text" },
@@ -104,6 +105,16 @@ class FormQuestionElem extends ElementBase {
       },
       formChangedSinceSubmit: true,
     }));
+  };
+
+  elementFromAPI = formQuestionFromAPI;
+
+  putURL = (): string => {
+    return getAPIEndpoint(
+      "form-element-form-question",
+      "form-element-form-question-url",
+      this.state.id,
+    );
   };
 
   render() {

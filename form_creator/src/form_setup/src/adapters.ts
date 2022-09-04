@@ -91,7 +91,7 @@ const elementTypeToAPI = (data: ElementType): APIElementType => {
  * @param data - The API HTML component.
  * @returns - The HTML component.
  */
-const HTMLComponentFormAPI = (data: APIHTMLComponent): HTMLComponent => {
+export const HTMLComponentFromAPI = (data: APIHTMLComponent): HTMLComponent => {
   return {
     id: data.id,
     form: data.form,
@@ -127,7 +127,7 @@ const HTMLComponentToAPI = (data: HTMLComponent): APIHTMLComponent => {
  * @param data - The API form question.
  * @returns - The form question.
  */
-const formQuestionFromAPI = (data: APIFormQuestion): FormQuestion => {
+export const formQuestionFromAPI = (data: APIFormQuestion): FormQuestion => {
   return {
     id: data.id,
     form: data.form,
@@ -184,7 +184,7 @@ export const formElementFromAPI = (data: APIFormElement): FormElement => {
   let element: HTMLComponent | FormQuestion;
   switch (model) {
     case "htmlcomponent":
-      element = HTMLComponentFormAPI(data.element as APIHTMLComponent);
+      element = HTMLComponentFromAPI(data.element as APIHTMLComponent);
       break;
     case "formquestion":
       element = formQuestionFromAPI(data.element as APIFormQuestion);

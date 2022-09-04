@@ -1,9 +1,5 @@
 from django.db.models import QuerySet
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.views import APIView
-from rest_framework.exceptions import MethodNotAllowed
-from rest_framework.request import Request
-from rest_framework.response import Response
 from .. import models as fc_models
 from . import serializers as fc_serializers
 
@@ -33,4 +29,34 @@ class FormElementViewSet(ModelViewSet):
             ).values_list("id", flat=True)
         )
 
-   
+
+class HTMLComponentViewSet(ModelViewSet):
+    """Viewset for `HTMLComponent`."""
+
+    serializer_class = fc_serializers.HTMLComponentSerializer
+
+    def get_queryset(self) -> QuerySet[fc_models.HTMLComponent]:
+        """Return a queryset of HTML component elements that the current user
+        is able to edit.
+        """
+        return fc_models.HTMLComponent.objects.filter(
+            form_id__in=fc_models.Form.get_editable_forms(
+                self.request.user
+            ).values_list("id", flat=True)
+        )
+
+
+class FormQuestionViewSet(ModelViewSet):
+    """Viewset for `FormQuestion`."""
+
+    serializer_class = fc_serializers.FormQuestionSerializer
+
+    def get_queryset(self) -> QuerySet[fc_models.FormQuestion]:
+        """Return a queryset of form question elements that the current user is
+        able to edit.
+        """
+        return fc_models.FormQuestion.objects.filter(
+            form_id__in=fc_models.Form.get_editable_forms(
+                self.request.user
+            ).values_list("id", flat=True)
+        )
