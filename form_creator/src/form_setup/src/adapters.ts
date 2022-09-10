@@ -14,6 +14,7 @@ import {
   FormQuestion,
   HTMLComponent,
 } from "./interfaces";
+import { dateTimeToString, valueOrNull } from "./utils";
 
 /**
  * Converts an API form element to a form element.
@@ -21,6 +22,7 @@ import {
  * @returns - The form element.
  */
 export const formDetailFromAPI = (data: APIFormDetail): FormDetail => {
+  console.log(data);
   return {
     form: {
       id: data.id,
@@ -46,8 +48,8 @@ export const formDetailToAPI = (data: FormDetail): APIFormDetail => {
     title: data.form.title,
     slug: data.form.slug || "",
     description: data.form.description || null,
-    start_dt: data.form.startDt || "",
-    end_dt: data.form.endDt || "",
+    start_dt: valueOrNull(dateTimeToString(data.form.startDt)),
+    end_dt: valueOrNull(dateTimeToString(data.form.endDt)),
     status: data.form.status || "",
     form_elements: data.formElements.map((element) => {
       return formElementToAPI(element);
@@ -108,7 +110,7 @@ const HTMLComponentToAPI = (data: HTMLComponent): APIHTMLComponent => {
   if (!data.form) {
     throw new Error("Form is required.");
   }
-  
+
   const apiData: APIHTMLComponent = {
     html: data.html,
     form: data.form,

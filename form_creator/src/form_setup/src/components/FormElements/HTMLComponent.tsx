@@ -53,6 +53,9 @@ class HTMLComponentElem extends ElementBase {
           <CKEditor
             editor={ClassicEditor}
             data={this.state.element.html}
+            onReady={(editor: { setData: (arg0: string) => void }) => {
+              editor.setData(this.state.element.html);
+            }}
             onChange={this.onChangeHandler}
           />
         </Form.Group>

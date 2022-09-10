@@ -8,7 +8,7 @@ import FormElements from "./containers/FormElements/FormElements";
 import * as screens from "./screens";
 import * as interfaces from "./interfaces";
 import * as actions from "./store/actions";
-import { formDetailFromAPI } from "./adapters";
+import { formDetailFromAPI, formDetailToAPI } from "./adapters";
 import { getCSRFToken, valueOrNull } from "./utils";
 
 interface Props {
@@ -20,19 +20,62 @@ interface Props {
   updateScreen: (screen: screens.ScreenOption) => void;
 }
 class App extends React.Component<Props> {
+  componentDidMount() {
+    const formIDElem = document.querySelector(
+      "#form-id"
+    ) as HTMLInputElement | null;
+    if (formIDElem && formIDElem.value) {
+      const formID = parseInt(formIDElem.value);
+      this.loadFormDetails(formID);
+    }
+  }
+
+  /**If the user has provided a formID, then function will load the form
+   * details data and store it in the redux store.
+   * @param formID - The ID of the form to load
+   */
+  loadFormDetails = (formID: number) => {
+    const url = getAPIEndpoint("form-detail", "api-form-detail", formID);
+    fetch(url)
+      .then((res) => {
+        console.log(res);
+        return res.json();
+      })
+      .then((data: interfaces.APIFormDetail) => {
+        const formDetail = formDetailFromAPI(data);
+        this.props.updateFormDetails(formDetail);
+      });
+  };
+
   detailsFormOnClickHandler = (event: Event) => {
     event.preventDefault();
-    const apiEndpoint = getAPIEndpoint("form-list", "api-form-list");
-    const data = {
-      title: valueOrNull(this.props.form.title),
-      description: valueOrNull(this.props.form.description),
-      start_dt: valueOrNull(this.props.form.startDt),
-      end_dt: valueOrNull(this.props.form.endDt),
-      status: valueOrNull(this.props.form.status),
-      form_elements: this.props.formElements,
-    };
+
+    let apiEndpoint: string;
+    let method: string;
+
+    if (this.props.form.id) {
+      apiEndpoint = getAPIEndpoint(
+        "form-detail",
+        "api-form-detail",
+        this.props.form.id
+      );
+      method = "PUT";
+    } else {
+      apiEndpoint = getAPIEndpoint("form-detail", "api-form-detail");
+      method = "POST";
+    }
+
+    const data = formDetailToAPI({
+      form: this.props.form,
+      // Set to an empty array as the endpoint is currently unable to handle
+      // form elements. This is handled separately.
+      formElements: [],
+    });
+
+    console.log(data);
+
     fetch(apiEndpoint, {
-      method: this.props.httpMethod,
+      method: method,
       headers: {
         "Content-Type": "application/json",
         "X-CSRFToken": getCSRFToken() || "",
@@ -41,6 +84,7 @@ class App extends React.Component<Props> {
     })
       .then((res) => res.json())
       .then((data: interfaces.APIFormDetail) => {
+        console.log(data);
         this.props.updateFormDetails(formDetailFromAPI(data));
         this.props.updateScreen(screens.FORM_ELEMENTS);
       });
@@ -59,7 +103,11 @@ class App extends React.Component<Props> {
         FormContent = <div>Error</div>;
     }
 
-    return <div className="container mt-5"><Form>{FormContent}</Form></div>;
+    return (
+      <div className="container mt-5">
+        <Form>{FormContent}</Form>
+      </div>
+    );
   }
 }
 

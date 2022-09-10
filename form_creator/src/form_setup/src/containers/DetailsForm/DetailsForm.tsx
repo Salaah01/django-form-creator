@@ -7,6 +7,7 @@ import * as actions from "../../store/actions";
 import classes from "./DetailsForm.module.scss";
 import { connect } from "react-redux";
 import { ConnectState } from "../../interfaces";
+import { dateTimeStrToInputVal, dateTimeToString } from "../../utils";
 
 class DetailsForm extends Component<any> {
   private formFieldOnChangeHandler = (event: ChangeEvent) => {
@@ -46,11 +47,16 @@ class DetailsForm extends Component<any> {
           </Form.Group>
 
           <Form.Group controlId="formStartDt">
-            <Form.Label>Start Date</Form.Label>
+            <Form.Label>
+              Start Date{" "}
+              {dateTimeStrToInputVal(dateTimeToString(this.props.form.startDt))}
+            </Form.Label>
             <Form.Control
               type="datetime-local"
               placeholder="Enter start date and time"
-              value={this.props.form.startDt}
+              value={dateTimeStrToInputVal(
+                dateTimeToString(this.props.form.startDt)
+              )}
               onChange={this.formFieldOnChangeHandler}
             />
           </Form.Group>
@@ -60,7 +66,7 @@ class DetailsForm extends Component<any> {
             <Form.Control
               type="datetime-local"
               placeholder="Enter end date and time"
-              value={this.props.form.endDt}
+              value={dateTimeToString(this.props.form.endDt)}
               onChange={this.formFieldOnChangeHandler}
             />
           </Form.Group>

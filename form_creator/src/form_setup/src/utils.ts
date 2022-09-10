@@ -52,3 +52,34 @@ export const valueOrNull = (value: any) => {
   }
   return value || null;
 };
+
+/**Converts a value which represents a date time to a string representation of
+ * itself.
+ * @param dt - The date time value to convert.
+ * @returns - The string representation of the date time.
+ */
+export const dateTimeToString = (dt: Date | string | undefined): string => {
+  if (!dt) {
+    return "";
+  }
+  if (typeof dt === "string") {
+    return dt;
+  }
+  return dt.toISOString();
+};
+
+/**
+ * Converts a string presentation of a date to another string presentation
+ * which can be set as the value of an input element.
+ * @param dtStr - The date time string to convert.
+ * @returns - The converted date time string.
+ */
+export const dateTimeStrToInputVal = (dtStr: string): string => {
+  const dt = new Date(dtStr);
+
+  if (dt.toString() === "Invalid Date") {
+    return "";
+  }
+
+  return dt.toISOString().slice(0, 16);
+};

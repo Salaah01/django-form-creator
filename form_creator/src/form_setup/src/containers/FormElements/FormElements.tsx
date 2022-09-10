@@ -15,7 +15,7 @@ import FormQuestionElem from "../../components/FormElements/FormQuestion";
 interface Props {
   formId: number;
   formElements: IFormElement[];
-  addBlankFormElement: any;
+  addBlankFormElement: (elementType: ElementType, formId: number) => void;
 }
 
 const getFormElement = (elementType: ElementType) => {
@@ -87,7 +87,7 @@ class FormElements extends Component<Props> {
       elements.push(
         <Element
           key={i}
-          formElement={this.props.formElements[i]}
+          element={this.props.formElements[i].element}
           formId={this.props.formId}
         />
       );

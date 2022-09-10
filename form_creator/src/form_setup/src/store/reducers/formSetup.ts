@@ -174,8 +174,18 @@ const updateFormDetails = (
     formDetails: { form: Form; formElements: FormElement[] };
   }
 ): State => {
+  let startDt: Date | string = "";
+  let endDt: Date | string = "";
+
+  if (action.formDetails.form.startDt) {
+    startDt = new Date(action.formDetails.form.startDt);
+  }
+  if (action.formDetails.form.endDt) {
+    endDt = new Date(action.formDetails.form.endDt);
+  }
+
   return updateObject(state, {
-    form: action.formDetails.form,
+    form: { ...action.formDetails.form, startDt, endDt },
     formElements: action.formDetails.formElements,
   }) as State;
 };

@@ -105,8 +105,8 @@ export interface Form {
   title: string;
   slug?: string;
   description?: string;
-  startDt?: string;
-  endDt?: string;
+  startDt?: Date|string;
+  endDt?: Date|string;
   status?: string;
 }
 

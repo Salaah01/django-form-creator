@@ -210,6 +210,14 @@ class FormSerializer(OptionalFieldsMixin, serializers.ModelSerializer):
             self._create_form_elements(form, form_elements)
         return form
 
+    def update(self, instance, validated_data):
+        """Update an existing form."""
+        form_elements = validated_data.pop("form_elements")
+        with transaction.atomic():
+            form = self._update_form(instance, validated_data)
+            # self._update_form_elements(form, form_elements)
+        return form
+
     def _create_form(self, validated_data: dict) -> fc_models.Form:
         """Creates a form from the validated data and returns the newly created
         form.
@@ -218,6 +226,13 @@ class FormSerializer(OptionalFieldsMixin, serializers.ModelSerializer):
             **validated_data,
             owner=self.context["request"].user,
         )
+
+    def _update_form(self, instance, validated_data: dict):
+        """Updates an existing form and returns the updated form."""
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance
 
     @staticmethod
     def _create_form_elements(
