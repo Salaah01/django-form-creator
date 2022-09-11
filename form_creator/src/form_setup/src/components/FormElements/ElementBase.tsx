@@ -24,7 +24,6 @@ abstract class ElementBase extends Component<any> {
 
   /**Initializes the state of this element. */
   componentDidMount = (): void => {
-    console.log(this.props.element)
     if (this.props.element) {
       this.setState({
         element: this.props.element,
@@ -84,9 +83,7 @@ abstract class ElementBase extends Component<any> {
     })
       .then((res) => res.json())
       .then((data: APIFormElement) => {
-        console.log(1111)
         const processedData = formElementFromAPI(data);
-        console.log(2221111)
 
         this.setState({
           id: processedData.element.id,

@@ -38,7 +38,6 @@ class App extends React.Component<Props> {
     const url = getAPIEndpoint("form-detail", "api-form-detail", formID);
     fetch(url)
       .then((res) => {
-        console.log(res);
         return res.json();
       })
       .then((data: interfaces.APIFormDetail) => {
@@ -72,8 +71,6 @@ class App extends React.Component<Props> {
       formElements: [],
     });
 
-    console.log(data);
-
     fetch(apiEndpoint, {
       method: method,
       headers: {
@@ -84,7 +81,6 @@ class App extends React.Component<Props> {
     })
       .then((res) => res.json())
       .then((data: interfaces.APIFormDetail) => {
-        console.log(data);
         this.props.updateFormDetails(formDetailFromAPI(data));
         this.props.updateScreen(screens.FORM_ELEMENTS);
       });

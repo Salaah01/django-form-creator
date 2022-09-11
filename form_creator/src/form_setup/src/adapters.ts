@@ -22,7 +22,6 @@ import { dateTimeToString, valueOrNull } from "./utils";
  * @returns - The form element.
  */
 export const formDetailFromAPI = (data: APIFormDetail): FormDetail => {
-  console.log(data);
   return {
     form: {
       id: data.id,

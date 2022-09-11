@@ -235,6 +235,7 @@ describe("ADD_BLANK_FORM_ELEMENT", () => {
           description: "",
           question: "",
           required: false,
+          choices: [],
         },
         elementType: FORM_QUESTION,
       },
@@ -443,8 +444,8 @@ describe("UPDATE_FORM_DETAILS", () => {
     formDetails: {
       form: {
         title: "Hello World",
-        startDt: "2020-01-01",
-        endDt: "2020-01-02",
+        startDt: new Date("2020-01-01"),
+        endDt: new Date("2020-01-02"),
         status: "draft",
       },
       formElements: [
@@ -465,8 +466,8 @@ describe("UPDATE_FORM_DETAILS", () => {
   it("should update the form details.", () => {
     expect(updatedState.form).toEqual({
       title: "Hello World",
-      startDt: "2020-01-01",
-      endDt: "2020-01-02",
+      startDt: new Date("2020-01-01"),
+      endDt: new Date("2020-01-02"),
       status: "draft",
     });
   });

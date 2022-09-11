@@ -90,15 +90,15 @@ export const updateScreen = (screen: ScreenOption) => {
 /**
  * Adds a blank form element.
  * @param elementType - The type of element to add.
- * @param formID - The id of the form to add the element to.
+ * @param formId - The id of the form to add the element to.
  */
 export const addBlankFormElement = (
   elementType: ElementType,
-  formID: Number
+  formId: Number
 ) => {
   return {
     type: actionTypes.ADD_BLANK_FORM_ELEMENT,
     elementType,
-    formID,
+    formId,
   };
 };

@@ -109,11 +109,17 @@ class FormQuestionElem extends ElementBase {
   elementFromAPI = formQuestionFromAPI;
 
   putURL = (): string => {
-    return getAPIEndpoint(
-      "form-element-form-question",
-      "form-element-form-question-url",
-      this.state.id,
-    );
+    const element = this.state.element as { [key: string]: any };
+
+    if (element.id) {
+      return getAPIEndpoint(
+        "form-element-form-question",
+        "form-element-form-question-url",
+        element.id
+      );
+    } else {
+      throw new Error("Cannot PUT form question without an ID.");
+    }
   };
 
   render() {
@@ -149,6 +155,9 @@ class FormQuestionElem extends ElementBase {
           <CKEditor
             editor={ClassicEditor}
             data={this.state.element.description}
+            onReady={(editor: { setData: (arg0: any) => void }) => {
+              editor.setData(this.state.element.description);
+            }}
             onChange={this.onChangeDescription}
           />
         </Form.Group>

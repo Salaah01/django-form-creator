@@ -39,6 +39,16 @@ const initialState: State = {
   },
 };
 
+const getMaxSeqNo = (formElements: FormElement[]): number => {
+  let maxSeqNo = 0;
+  formElements.forEach((formElement) => {
+    if (formElement.element.seqNo && formElement.element.seqNo > maxSeqNo) {
+      maxSeqNo = formElement.element.seqNo;
+    }
+  });
+  return maxSeqNo;
+};
+
 /**
  * Updates the HTTP method to use.
  * @param action.httpMethod - The HTTP method to use.
@@ -104,6 +114,7 @@ const addBlankFormElement = (
       question: "",
       description: "",
       required: false,
+      choices: [],
     };
   }
 
@@ -187,6 +198,10 @@ const updateFormDetails = (
   return updateObject(state, {
     form: { ...action.formDetails.form, startDt, endDt },
     formElements: action.formDetails.formElements,
+    meta: {
+      ...state.meta,
+      maxSeqNo: getMaxSeqNo(action.formDetails.formElements),
+    }
   }) as State;
 };
 

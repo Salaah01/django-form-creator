@@ -38,11 +38,17 @@ class HTMLComponentElem extends ElementBase {
   elementFromAPI = HTMLComponentFromAPI;
 
   putURL = (): string => {
-    return getAPIEndpoint(
-      "form-element-html-component",
-      "form-element-html-component-url",
-      this.state.id
-    );
+    const element = this.state.element as { [key: string]: any };
+
+    if (element.id) {
+      return getAPIEndpoint(
+        "form-element-html-component",
+        "form-element-html-component-url",
+        element.id
+      );
+    } else {
+      throw new Error("Cannot PUT HTML component without ID");
+    }
   };
 
   render() {
