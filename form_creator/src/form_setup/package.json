@@ -24,7 +24,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "BUILD_PATH='../../static_2/form_creator/js/form_setup' react-scripts build",
+    "build": "node ./scripts/build.js",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -48,6 +48,7 @@
   },
   "devDependencies": {
     "@types/react-beautiful-dnd": "^13.1.2",
+    "rewire": "^6.0.0",
     "sass": "^1.54.3"
   }
 }

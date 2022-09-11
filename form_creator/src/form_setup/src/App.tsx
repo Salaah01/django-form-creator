@@ -9,7 +9,9 @@ import * as screens from "./screens";
 import * as interfaces from "./interfaces";
 import * as actions from "./store/actions";
 import { formDetailFromAPI, formDetailToAPI } from "./adapters";
-import { getCSRFToken, valueOrNull } from "./utils";
+import { getCSRFToken } from "./utils";
+
+console.log('here')
 
 interface Props {
   httpMethod: interfaces.HttpMethod;
