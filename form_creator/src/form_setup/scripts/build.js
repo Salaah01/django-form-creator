@@ -17,7 +17,7 @@ const buildPath = path.resolve(
   "..",
   "..",
   "..",
-  path.join("static_2", "form_creator", "js", "form_setup")
+  path.join("static", "form_creator", "js", "form_setup")
 );
 console.log("writing files to ", buildPath);
 pathsDefault.__set__("buildPath", buildPath);
@@ -27,8 +27,8 @@ config.output.path = buildPath;
 
 // We won't hash the file names, this can be handled by Django instead of
 // the user choices to do so.
-config.output.filename = "static/js/[name].js";
-config.output.chunkFilename = "static/js/[name].chunk.js";
+config.output.filename = "[name].js";
+config.output.chunkFilename = "[name].chunk.js";
 
 config.plugins[5].options.filename = "static/css/[name].css";
 config.plugins[5].options.moduleFilename = () => "static/css/main.css";
