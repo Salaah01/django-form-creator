@@ -1,5 +1,6 @@
+import time
 from types import SimpleNamespace
-from django.test import TestCase, Client
+from django.test import TestCase, Client, LiveServerTestCase
 from django.urls import reverse
 from django.http import Http404
 from django.contrib.messages import get_messages
@@ -8,6 +9,7 @@ import mock
 from model_bakery import baker
 from .. import views as fc_views, models as fc_models
 from ..question_form_fields import FieldTypeChoices
+from .selenium_browser import selenium_browser, browser_login
 
 User = get_user_model()
 
@@ -166,12 +168,12 @@ class TestFromQuestionEditView(TestCase):
         self.question_1 = baker.make(
             fc_models.FormQuestion,
             form=self.form,
-            question='q1',
+            question="q1",
         )
         self.question_2 = baker.make(
             fc_models.FormQuestion,
             form=self.form,
-            question='q2',
+            question="q2",
         )
 
     def test_get_view_loads(self):
@@ -441,3 +443,18 @@ class TestDownloadResponses(TestCase):
             )
         )
         self.assertEqual(response.status_code, 200)
+
+
+class TestReactFormCreate(LiveServerTestCase):
+    """Test the workflow of creating a new form."""
+
+    @property
+    def url(self) -> str:
+        return self.live_server_url + reverse("form_creator:react_form_create")
+
+    def test_create_form(self):
+        """Test that a basic form can be created."""
+        with selenium_browser() as browser:
+            browser.get(self.live_server_url)
+            browser_login(browser, baker.make(User))
+            browser.get(self.url)

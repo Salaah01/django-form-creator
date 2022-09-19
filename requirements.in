@@ -1,11 +1,31 @@
 django==4.1
-django-crispy-forms==1.14.0
-django-ckeditor==6.4.2
 django-debug-toolbar==3.5.0
 djangorestframework==3.13.1
+
+# Help with compiling requirements
+pip-tools==6.8.0
+
+# To generate form elements using Bootstrap 4 
+django-crispy-forms==1.14.0
+
+# Rich text editor
+django-ckeditor==6.4.2
+
+# Styling/Linting/Formatting
 flake8==4.0.1
 black==22.6.0
+
+# Coverage report when unit testingg
 coverage==6.4.3
+
+# Creates testcases
 model_bakery==1.6.0
-pip-tools==6.8.0
+
+# To help mock (do we still need this considering we can use unittest.mock?)
 mock==4.0.3
+
+# To help with testing
+selenium==4.4.3
+
+# Automatically sets up webdrivers for selenium
+webdriver-manager==3.8.3

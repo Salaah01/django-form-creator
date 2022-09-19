@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block head %}
+  <title>Form Detail</title>
+  <link href="{% static 'form_creator/js/form_setup/static/css/main.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+  <div id="root"></div>
+  {% if form_id %}
+    <input type="hidden" id="form-id" value="{{ form_id }}" />
+  {% endif %}
+{% endblock %}
+
+{% block scripts %}
+  <script src="{% static 'form_creator/js/form_setup/main.js' %}"></script>
+{% endblock %}

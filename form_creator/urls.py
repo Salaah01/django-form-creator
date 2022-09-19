@@ -4,6 +4,8 @@ from . import views
 app_name = "form_creator"
 
 urlpatterns = [
+    path("react-form/", views.react_form, name="react_form_create"),
+    path("react-form/<int:pk>/", views.react_form, name="react_form_edit"),
     path("forms/", views.FormListView.as_view(), name="form_list"),
     path("forms/create/", views.FormCreateView.as_view(), name="form_create"),
     path(

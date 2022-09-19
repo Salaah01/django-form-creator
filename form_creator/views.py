@@ -1,3 +1,4 @@
+import typing as _t
 import re
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
@@ -230,3 +231,16 @@ def download_responses(
         response,
     )
     return response
+
+
+def react_form(
+    request: HttpRequest, pk: _t.Optional[int] = None
+) -> HttpResponse:
+    """View to create/edit a form."""
+    return render(
+        request,
+        "form_creator/react_form.html",
+        {
+            "form_id": pk,
+        },
+    )
