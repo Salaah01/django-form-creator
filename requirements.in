@@ -2,6 +2,12 @@ django==4.1
 django-debug-toolbar==3.5.0
 djangorestframework==3.13.1
 
+# To facilitate React dev server sending requests to Django dev server 
+django-cors-headers==3.13.0
+
+# Loading of environment variables from .env file
+python-decouple==3.6
+
 # Help with compiling requirements
 pip-tools==6.8.0
 

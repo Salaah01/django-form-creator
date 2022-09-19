@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 import os
 from pathlib import Path
 from django.contrib.messages import constants as messages
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -149,4 +150,10 @@ MESSAGE_TAGS = {
     messages.ERROR: "alert-danger",
 }
 
-REACT_DEV_PORT = 3000
+REACT_DEV_PORT = config("REACT_DEV_PORT", default=3000, cast=int)
+CHROMEDRIVER_PATH = config("CHROMEDRIVER_PATH", default="chromedriver")
+SELENIUM_HEADLESS_MODE = config(
+    "SELENIUM_HEADLESS_MODE",
+    default=True,
+    cast=bool,
+)

@@ -36,11 +36,14 @@ django==4.1
     # via
     #   -r requirements.in
     #   django-ckeditor
+    #   django-cors-headers
     #   django-debug-toolbar
     #   django-js-asset
     #   djangorestframework
     #   model-bakery
 django-ckeditor==6.4.2
+    # via -r requirements.in
+django-cors-headers==3.13.0
     # via -r requirements.in
 django-crispy-forms==1.14.0
     # via -r requirements.in
@@ -86,6 +89,8 @@ pyparsing==3.0.9
     # via packaging
 pysocks==1.7.1
     # via urllib3
+python-decouple==3.6
+    # via -r requirements.in
 python-dotenv==0.21.0
     # via webdriver-manager
 pytz==2022.1

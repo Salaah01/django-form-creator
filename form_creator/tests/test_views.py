@@ -1,4 +1,4 @@
-import time
+import typing as _t
 from types import SimpleNamespace
 from django.test import TestCase, Client, LiveServerTestCase
 from django.urls import reverse
@@ -7,6 +7,7 @@ from django.contrib.messages import get_messages
 from django.contrib.auth import get_user_model
 import mock
 from model_bakery import baker
+from selenium.webdriver.common.by import By
 from .. import views as fc_views, models as fc_models
 from ..question_form_fields import FieldTypeChoices
 from .selenium_browser import selenium_browser, browser_login
@@ -445,16 +446,46 @@ class TestDownloadResponses(TestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class TestReactFormCreate(LiveServerTestCase):
+class TestReactForm(LiveServerTestCase):
     """Test the workflow of creating a new form."""
 
-    @property
-    def url(self) -> str:
-        return self.live_server_url + reverse("form_creator:react_form_create")
+    def url(self, pk: _t.Optional[int] = None) -> str:
+        """Return the URL for the view."""
+        if pk:
+            uri = reverse("form_creator:react_form_edit", args=(pk,))
+        else:
+            uri = reverse("form_creator:react_form_create")
+        return self.live_server_url + uri
 
     def test_create_form(self):
         """Test that a basic form can be created."""
         with selenium_browser() as browser:
             browser.get(self.live_server_url)
             browser_login(browser, baker.make(User))
-            browser.get(self.url)
+            browser.get(self.url())
+            browser.find_element("id", "formTitle").send_keys("Test Form")
+            browser.find_element(
+                By.CSS_SELECTOR, ".ck-editor__main > .ck-content"
+            ).send_keys("Description")
+            browser.find_element(
+                By.CSS_SELECTOR, "button[type=submit].btn-primary"
+            ).click()
+
+            self.assertEqual(
+                fc_models.Form.objects.count(),
+                1,
+                browser.get_log("browser"),
+            )
+
+        form = fc_models.Form.objects.first()
+        self.assertEqual(form.title, "Test Form")
+        self.assertEqual(form.description, "Description")
+
+    def test_edit_form(self):
+        """Test that a basic form that exists can be edited."""
+        with selenium_browser() as browser:
+            user = baker.make(User)
+            form = baker.make(fc_models.Form, owner=user)
+            browser.get(self.live_server_url)
+            browser_login(browser, user)
+            browser.get(self.url(form.id))

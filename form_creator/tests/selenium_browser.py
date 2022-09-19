@@ -3,26 +3,44 @@
 import typing as _t
 from base64 import b64encode
 from selenium import webdriver
+from selenium.common.exceptions import WebDriverException
 from webdriver_manager.chrome import ChromeDriverManager
 from django.test import Client
+from django.conf import settings
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
 
-def selenium_browser(headless: bool = True) -> webdriver.Chrome:
-    """Helper function to create a selenium web browser."""
+def selenium_browser(
+    headless: bool = settings.SELENIUM_HEADLESS_MODE,
+) -> webdriver.Chrome:
+    """Helper function to create a selenium web browser.
+    :param headless: Whether or not the browser should run on headless mode.
+    :type headless: bool
+    """
 
-    opt = webdriver.ChromeOptions()
-    opt.add_argument("--disable-extensions")
-    opt.add_argument("--disable-gpu")
-    opt.add_argument("--disable-dev-shm-usage")
-    opt.add_argument("--no-sandbox")
-    opt.add_argument("--headless")
-    opt.add_argument("--disable-web-security")
-    opt.add_argument("--allow-running-insecure-content")
+    try:
+        browser = webdriver.Chrome(settings.CHROMEDRIVER_PATH)
+    except WebDriverException as e:
+        print(e)
+        opt = webdriver.ChromeOptions()
+        opt.add_argument("--disable-extensions")
+        opt.add_argument("--disable-gpu")
+        opt.add_argument("--disable-dev-shm-usage")
+        opt.add_argument("--no-sandbox")
+        opt.add_experimental_option("prefs", {"dark_mode": True})
+        opt.add_argument("--force-dark-mode")
+        if not headless:
+            opt.add_argument("--headless")
+        opt.add_argument("--disable-web-security")
+        opt.add_argument("--allow-running-insecure-content")
 
-    browser = webdriver.Chrome(ChromeDriverManager().install(), options=opt)
+        browser = webdriver.Chrome(
+            ChromeDriverManager().install(),
+            options=opt,
+        )
+
     browser.set_window_size(1920, 1080)
     return browser
 
