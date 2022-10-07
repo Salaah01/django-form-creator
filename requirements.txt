@@ -6,7 +6,7 @@
 #
 asgiref==3.5.2
     # via django
-black==22.6.0
+black==22.10.0
     # via -r requirements.in
 build==0.8.0
     # via pip-tools
