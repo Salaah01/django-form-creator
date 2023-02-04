@@ -25,9 +25,9 @@ django-crispy-forms==1.14.0
     # via -r requirements.in
 django-debug-toolbar==3.8.1
     # via -r requirements.in
-flake8==4.0.1
+flake8==6.0.0
     # via -r requirements.in
-mccabe==0.6.1
+mccabe==0.7.0
     # via flake8
 mock==4.0.3
     # via -r requirements.in
@@ -45,9 +45,9 @@ pip-tools==6.12.2
     # via -r requirements.in
 platformdirs==2.5.2
     # via black
-pycodestyle==2.8.0
+pycodestyle==2.10.0
     # via flake8
-pyflakes==2.4.0
+pyflakes==3.0.1
     # via flake8
 pyparsing==3.0.9
     # via packaging
