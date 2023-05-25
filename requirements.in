@@ -1,6 +1,6 @@
 django==4.2.1
 django-crispy-forms==1.14.0
-django-debug-toolbar==4.0.0
+django-debug-toolbar==4.1.0
 flake8==6.0.0
 black==23.3.0
 coverage==7.2.6
