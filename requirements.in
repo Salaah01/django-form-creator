@@ -5,5 +5,5 @@ flake8==6.0.0
 black==23.3.0
 coverage==7.2.6
 model_bakery==1.13.0
-pip-tools==6.13.0
+pip-tools==7.3.0
 mock==5.0.2
