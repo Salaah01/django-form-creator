@@ -3,7 +3,7 @@ django-crispy-forms==1.14.0
 django-debug-toolbar==4.1.0
 flake8==6.0.0
 black==23.3.0
-coverage==7.2.6
+coverage==7.4.0
 model_bakery==1.13.0
 pip-tools==6.13.0
 mock==5.1.0
