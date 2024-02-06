@@ -1,4 +1,4 @@
-django==4.2.9
+django==4.2.10
 django-crispy-forms==1.14.0
 django-debug-toolbar==4.3.0
 flake8==7.0.0
