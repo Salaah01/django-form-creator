@@ -8,7 +8,7 @@ asgiref==3.6.0
     # via django
 backports-zoneinfo==0.2.1
     # via django
-black==24.3.0
+black==24.4.1
     # via -r requirements.in
 build==1.0.3
     # via pip-tools
