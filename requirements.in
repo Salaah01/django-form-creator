@@ -2,7 +2,7 @@ django==4.2.11
 django-crispy-forms==1.14.0
 django-debug-toolbar==4.3.0
 flake8==7.0.0
-black==24.3.0
+black==24.4.2
 coverage==7.4.3
 model_bakery==1.17.0
 pip-tools==7.4.1
