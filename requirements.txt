@@ -25,7 +25,7 @@ django==4.2.13
     #   model-bakery
 django-crispy-forms==1.14.0
     # via -r requirements.in
-django-debug-toolbar==4.3.0
+django-debug-toolbar==4.4.3
     # via -r requirements.in
 flake8==7.1.0
     # via -r requirements.in
