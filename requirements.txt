@@ -21,9 +21,10 @@ coverage==7.6.1
 django==4.2.14
     # via
     #   -r requirements.in
+    #   django-crispy-forms
     #   django-debug-toolbar
     #   model-bakery
-django-crispy-forms==1.14.0
+django-crispy-forms==2.3
     # via -r requirements.in
 django-debug-toolbar==4.4.6
     # via -r requirements.in
