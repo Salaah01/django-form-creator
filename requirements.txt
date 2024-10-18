@@ -27,7 +27,7 @@ django-crispy-forms==1.14.0
     # via -r requirements.in
 django-debug-toolbar==4.4.6
     # via -r requirements.in
-flake8==7.1.0
+flake8==7.1.1
     # via -r requirements.in
 importlib-metadata==7.0.1
     # via build
